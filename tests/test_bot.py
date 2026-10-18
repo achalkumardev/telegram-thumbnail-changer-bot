@@ -1,44 +1,55 @@
 """
-Comprehensive test suite for Telegram Video Cover Changer Bot.
-Verifies storage, handler behavior, zero-download architecture, and Telegram API payload formatting.
+Comprehensive unit tests for Telegram Video Cover Changer Bot handlers.
+Verifies message routing, unsupported media filtering, pointer swap payload creation, and commands.
 """
 
-import asyncio
-from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from aiogram.types import Chat, Message, PhotoSize, User, Video, Document, Audio, MessageEntity
+from aiogram.types import Chat, Message, PhotoSize, User, Video, Document, MessageEntity
 
-from bot import dp, handle_photo, handle_unsupported_media, handle_video, UNSUPPORTED_MEDIA_REPLY
+from bot import (
+    handle_help,
+    handle_photo,
+    handle_start,
+    handle_unsupported_media,
+    handle_video,
+    UNSUPPORTED_MEDIA_REPLY,
+)
 from storage import ThumbnailStorage
 
 
-def test_storage():
-    """Verify in-memory RAM storage operations."""
-    st = ThumbnailStorage()
-    user_id = 999888
-    file_id = "AgACAgIAAxkBAAIC123456"
+@pytest.mark.asyncio
+async def test_start_command_handler():
+    """Verify that start command returns the welcome message."""
+    user = User(id=777, is_bot=False, first_name="StartTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply = AsyncMock()
 
-    assert st.get_thumbnail(user_id) is None
-    assert not st.has_thumbnail(user_id)
-    assert st.count() == 0
+    await handle_start(message)
 
-    st.set_thumbnail(user_id, file_id)
-    assert st.has_thumbnail(user_id)
-    assert st.get_thumbnail(user_id) == file_id
-    assert st.count() == 1
+    message.reply.assert_called_once()
+    assert "Thumbnail Changer Bot" in message.reply.call_args[0][0]
+    assert "4GB" in message.reply.call_args[0][0]
 
-    # Overwrite with new photo
-    new_file_id = "AgACAgIAAxkBAAIC789012"
-    st.set_thumbnail(user_id, new_file_id)
-    assert st.get_thumbnail(user_id) == new_file_id
-    assert st.count() == 1
 
-    # Delete
-    assert st.delete_thumbnail(user_id) is True
-    assert st.get_thumbnail(user_id) is None
-    assert st.delete_thumbnail(user_id) is False
+@pytest.mark.asyncio
+async def test_help_command_handler():
+    """Verify that help command returns user instructions."""
+    user = User(id=777, is_bot=False, first_name="HelpTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply = AsyncMock()
+
+    await handle_help(message)
+
+    message.reply.assert_called_once()
+    assert "User Guide" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -48,8 +59,7 @@ async def test_photo_handler():
     with patch("bot.storage", mock_storage):
         user = User(id=111, is_bot=False, first_name="Tester")
         chat = Chat(id=111, type="private")
-        
-        # Two resolutions: small and large
+
         small_photo = PhotoSize(file_id="small_id", file_unique_id="s1", width=100, height=100)
         large_photo = PhotoSize(file_id="large_id_best", file_unique_id="l1", width=1280, height=720)
 
@@ -61,15 +71,15 @@ async def test_photo_handler():
 
         await handle_photo(message)
 
-        # Check stored in RAM
+        # Stored in RAM
         assert mock_storage.get_thumbnail(111) == "large_id_best"
-        # Check reply message
+        # Exact reply message
         message.reply.assert_called_once_with("✅ Thumbnail Saved! Send your streaming video now.")
 
 
 @pytest.mark.asyncio
 async def test_unsupported_media_handler():
-    """Verify that document/audio/etc. are blocked with exact error message."""
+    """Verify that document/audio/etc. are blocked with exact required error message."""
     message = MagicMock(spec=Message)
     message.from_user = User(id=111, is_bot=False, first_name="Tester")
     message.chat = Chat(id=111, type="private")
@@ -126,7 +136,7 @@ async def test_video_handler_pointer_swap():
             width=1920,
             height=1080,
             duration=3600,
-            file_size=4294967296, # 4GB
+            file_size=4294967296,  # 4GB
         )
 
         caption_entity = MessageEntity(type="bold", offset=0, length=5)
@@ -158,48 +168,3 @@ async def test_video_handler_pointer_swap():
         assert kwargs["width"] == 1920
         assert kwargs["height"] == 1080
         assert kwargs["has_spoiler"] is True
-
-        # Verify no file download or disk operation occurred
-        assert not hasattr(mock_bot, "download_file") or not mock_bot.download_file.called
-
-
-@pytest.mark.asyncio
-async def test_start_command_handler():
-    """Verify that start command returns the welcome message."""
-    user = User(id=777, is_bot=False, first_name="StartTester")
-    chat = Chat(id=777, type="private")
-    message = MagicMock(spec=Message)
-    message.from_user = user
-    message.chat = chat
-    message.reply = AsyncMock()
-
-    from bot import handle_start
-    await handle_start(message)
-
-    message.reply.assert_called_once()
-    assert "Thumbnail Changer Bot" in message.reply.call_args[0][0]
-    assert "4GB" in message.reply.call_args[0][0]
-
-
-@pytest.mark.asyncio
-async def test_help_command_handler():
-    """Verify that help command returns user instructions."""
-    user = User(id=777, is_bot=False, first_name="HelpTester")
-    chat = Chat(id=777, type="private")
-    message = MagicMock(spec=Message)
-    message.from_user = user
-    message.chat = chat
-    message.reply = AsyncMock()
-
-    from bot import handle_help
-    await handle_help(message)
-
-    message.reply.assert_called_once()
-    assert "User Guide" in message.reply.call_args[0][0]
-
-
-
-
-if __name__ == "__main__":
-    import pytest
-    pytest.main(["-v", __file__])

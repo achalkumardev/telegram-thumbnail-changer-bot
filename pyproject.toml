@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "telegram-thumbnail-changer-bot"
+version = "1.0.0"
+description = "Ultra-fast Telegram Video Cover/Thumbnail Changer Bot using Zero-Download Server-Side Pointer Swap Architecture"
+readme = "README.md"
+authors = [
+    { name = "achal kumar", email = "achakumar00@gmail.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["telegram", "bot", "aiogram", "thumbnail", "cover", "video", "mtproto", "pointer-swap"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Communications :: Chat",
+    "Topic :: Multimedia :: Video",
+]
+dependencies = [
+    "aiogram>=3.17.0,<4.0.0",
+    "httpx>=0.28.1",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.10.0,<3.0.0",
+    "aiofiles>=24.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.8.0",
+    "black>=24.10.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "strict"
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]

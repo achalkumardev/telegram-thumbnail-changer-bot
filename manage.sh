@@ -33,7 +33,7 @@ stop() {
         rm -f "$PID_FILE"
     fi
     echo "Stopping any running bot processes..."
-    pkill -f "python3.*telegram_cover_bot/bot.py" 2>/dev/null || true
+    pkill -f "python3.*(src/bot\.py|bot\.py)" 2>/dev/null || true
     echo "Bot stopped."
 }
 

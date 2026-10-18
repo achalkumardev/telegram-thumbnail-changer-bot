@@ -3,8 +3,15 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent
-# Load environment variables from .env if present
-load_dotenv(BASE_DIR / ".env")
+ROOT_DIR = BASE_DIR.parent
+
+# Attempt loading .env from project root first, then src directory, then default environment
+if (ROOT_DIR / ".env").is_file():
+    load_dotenv(ROOT_DIR / ".env")
+elif (BASE_DIR / ".env").is_file():
+    load_dotenv(BASE_DIR / ".env")
+else:
+    load_dotenv()
 
 BOT_TOKEN: str = os.getenv("BOT_TOKEN", "").strip()
 BOT_NAME: str = os.getenv("BOT_NAME", "Thumbnail Changer Bot").strip()

@@ -22,10 +22,10 @@ cleanup() {
 trap cleanup SIGTERM SIGINT SIGHUP
 
 while true; do
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Launching bot process..." >> "$LOG_FILE"
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Launching bot process from src/bot.py..." >> "$LOG_FILE"
     
-    # Run unbuffered python and pipe output to log file
-    "$VENV_PYTHON" -u "$SCRIPT_DIR/bot.py" >> "$LOG_FILE" 2>&1 || true
+    # Run unbuffered python from src/bot.py and pipe output to log file
+    "$VENV_PYTHON" -u "$SCRIPT_DIR/src/bot.py" >> "$LOG_FILE" 2>&1 || true
     
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Bot process exited. Restarting in 3 seconds..." >> "$LOG_FILE"
     sleep 3

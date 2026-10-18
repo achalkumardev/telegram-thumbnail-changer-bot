@@ -61,19 +61,36 @@ This bot leverages Telegram's modern `cover` parameter in the `sendVideo` Bot AP
 
 ```
 .
-├── .env.example          # Sample environment configuration template
-├── .gitignore            # Git ignore rules for secrets and runtime logs
-├── Dockerfile            # Production Docker container definition
-├── docker-compose.yml    # Docker Compose orchestration
-├── coverbot.service      # Linux systemd service unit template
-├── requirements.txt      # Python dependencies (aiogram, httpx, python-dotenv)
-├── config.py             # Configuration loader
-├── storage.py            # High-speed in-memory RAM cache
-├── bot.py                # Main bot application & aiogram 3 handlers
-├── test_bot.py           # Automated test suite (7/7 unit tests)
-├── run.sh                # Auto-restarting background supervisor
-├── manage.sh             # Service lifecycle management script
-└── README.md             # Project documentation
+├── .github/
+│   ├── workflows/
+│   │   └── ci.yml            # Automated CI pipeline (lint, test across Python 3.10-3.12)
+│   └── dependabot.yml        # Automated dependency updates
+├── docs/
+│   ├── ARCHITECTURE.md       # Deep dive into Server-Side Pointer Swap Architecture
+│   └── DEPLOYMENT.md         # Production deployment & service orchestration guide
+├── src/
+│   ├── __init__.py           # Package marker
+│   ├── bot.py                # Main Telegram Bot logic & event handlers
+│   ├── config.py             # Robust environment configuration loader
+│   └── storage.py            # High-speed in-memory RAM thumbnail cache
+├── tests/
+│   ├── __init__.py           # Test package marker
+│   ├── conftest.py           # Shared test fixtures & sys.path configuration
+│   ├── test_bot.py           # Bot handlers & pointer swap tests
+│   └── test_storage.py       # RAM storage unit tests
+├── .env.example              # Sample environment template with placeholders
+├── .gitignore                # Comprehensive ignore rules for secrets and caches
+├── Dockerfile                # Production-ready multi-stage Dockerfile
+├── docker-compose.yml        # Docker Compose service definition
+├── Makefile                  # Developer workflow automation (install, test, run, lint)
+├── pyproject.toml            # PEP 518/621 modern package specification
+├── requirements.txt          # Upgraded core production dependencies
+├── requirements-dev.txt      # Development, linting & testing dependencies
+├── coverbot.service          # Linux systemd service unit template
+├── run.sh                    # Auto-restarting background supervisor
+├── manage.sh                 # Background service manager (start, stop, status, logs)
+├── README.md                 # Project overview and documentation
+└── LICENSE                   # MIT License
 ```
 
 ---

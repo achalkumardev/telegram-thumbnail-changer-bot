@@ -7,7 +7,16 @@ import asyncio
 import logging
 import sys
 import time
+from pathlib import Path
 from typing import Optional
+
+# Ensure src/ and parent directory are on sys.path for robust imports
+_SRC_DIR = Path(__file__).resolve().parent
+_ROOT_DIR = _SRC_DIR.parent
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
+if str(_ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(_ROOT_DIR))
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ChatAction, ChatType
@@ -112,7 +121,6 @@ async def handle_photo(message: Message) -> None:
     and immediately reply with the confirmation message.
     """
     user_id = message.from_user.id
-    # message.photo is sorted by size ascending; last element has the highest resolution
     highest_res_photo = message.photo[-1]
     photo_file_id = highest_res_photo.file_id
 
@@ -246,14 +254,11 @@ async def main() -> None:
     """Initialize bot instance and start long polling."""
     logger.info("Starting %s with Zero-Download Pointer Swap Architecture...", config.BOT_NAME)
     
-    # Initialize Bot without global default parse_mode so caption_entities are preserved untouched
     bot = Bot(token=config.BOT_TOKEN)
 
-    # Validate bot token and connectivity
     me = await bot.get_me()
     logger.info("Bot authenticated successfully: @%s (ID: %s)", me.username, me.id)
 
-    # Drop any pending updates accumulated while offline to prevent stale processing
     await bot.delete_webhook(drop_pending_updates=True)
     logger.info("Dropped pending updates. Commencing polling...")
 
