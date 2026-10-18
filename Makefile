@@ -16,11 +16,11 @@ $(VENV): ## Create virtual environment
 	$(PYTHON) -m venv $(VENV)
 	$(PIP) install --upgrade pip
 
-install: $(VENV) ## Install production dependencies
-	$(PIP) install -r requirements.txt
+install: $(VENV) ## Install production dependencies from pyproject.toml
+	$(PIP) install .
 
-install-dev: $(VENV) ## Install development and test dependencies
-	$(PIP) install -r requirements-dev.txt
+install-dev: $(VENV) ## Install development and test dependencies from pyproject.toml
+	$(PIP) install -e ".[dev]"
 
 run: $(VENV) ## Run bot directly in foreground
 	$(VENV_BIN)/python -u src/bot.py

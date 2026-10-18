@@ -82,10 +82,8 @@ This bot leverages Telegram's modern `cover` parameter in the `sendVideo` Bot AP
 ├── .gitignore                # Comprehensive ignore rules for secrets and caches
 ├── Dockerfile                # Production-ready multi-stage Dockerfile
 ├── docker-compose.yml        # Docker Compose service definition
-├── Makefile                  # Developer workflow automation (install, test, run, lint)
-├── pyproject.toml            # PEP 518/621 modern package specification
-├── requirements.txt          # Upgraded core production dependencies
-├── requirements-dev.txt      # Development, linting & testing dependencies
+├── Makefile                  # Developer workflow automation (install, test, run, clean)
+├── pyproject.toml            # PEP 518/621 modern package specification & dependencies
 ├── coverbot.service          # Linux systemd service unit template
 ├── run.sh                    # Auto-restarting background supervisor
 ├── manage.sh                 # Background service manager (start, stop, status, logs)

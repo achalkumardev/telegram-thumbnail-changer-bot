@@ -21,9 +21,10 @@ The repository includes a battle-tested background supervisor loop (`run.sh`) an
 git clone https://github.com/achalkumardev/telegram-thumbnail-changer-bot.git
 cd telegram-thumbnail-changer-bot
 
-# Setup virtual environment
-python3 -m venv venv
-./venv/bin/pip install -r requirements.txt
+# Setup virtual environment and install dependencies
+make install
+# Or manually:
+# python3 -m venv venv && ./venv/bin/pip install .
 
 # Configure environment
 cp .env.example .env

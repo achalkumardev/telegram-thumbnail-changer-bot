@@ -13,11 +13,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy package definition and source code
+COPY pyproject.toml .
+COPY src/ ./src/
 
-# Copy project files
+# Install production dependencies directly from pyproject.toml
+RUN pip install --no-cache-dir .
+
+# Copy remaining project files
 COPY . .
 
 # Run bot
