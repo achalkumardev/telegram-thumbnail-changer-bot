@@ -1,10 +1,38 @@
 # Deployment Guide 🚀
 
-This document outlines the standard deployment workflows for production VPS environments.
+This document outlines standard deployment workflows:
+1. **Cloudflare Workers (100% Serverless, Free 24/7)**
+2. **Local VPS Background Supervisor**
+3. **Linux Systemd Service**
+4. **Docker / Docker Compose**
 
 ---
 
-## 🛠️ Prerequisites
+## 🌟 1. Cloudflare Workers (100% Free Serverless)
+
+The bot runs completely serverless on Cloudflare's Edge Network with persistent Cloudflare KV storage:
+
+### Setup:
+```bash
+cd cloudflare_worker
+
+# 1. Install Wrangler CLI
+npm install
+
+# 2. Deploy to Cloudflare Edge
+npx wrangler deploy
+
+# 3. Set encrypted Bot Token
+npx wrangler secret put BOT_TOKEN
+
+# 4. Set Telegram Webhook
+curl -X POST "https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook" \
+     -d "url=https://thumbswap-bot.<YOUR_SUBDOMAIN>.workers.dev/"
+```
+
+---
+
+## 🛠️ VPS Prerequisites (For Options 2, 3, & 4)
 
 - Linux Server (Ubuntu 22.04 / 24.04 LTS recommended)
 - Python 3.10 or higher
@@ -12,7 +40,7 @@ This document outlines the standard deployment workflows for production VPS envi
 
 ---
 
-## 1. Local VPS Supervisor Deployment (Included)
+## 2. Local VPS Supervisor Deployment (Included)
 
 The repository includes a battle-tested background supervisor loop (`scripts/run.sh`) and a control script (`scripts/manage.sh`).
 
