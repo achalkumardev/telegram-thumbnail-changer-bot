@@ -1,0 +1,32 @@
+# Environment and secrets
+.env
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Python cache & artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs and runtime files
+*.log
+bot.log
+*.pid
+bot.pid
+
+# Editor and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
