@@ -1,0 +1,44 @@
+name: 🐛 Bug Report
+description: Report an issue or unexpected behavior in ThumbSwap Bot
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue! Please provide as much relevant information as possible.
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Deployment Environment
+      description: Where is the bot currently running?
+      options:
+        - Cloudflare Workers (Serverless)
+        - Linux VPS (Supervisor / manage.sh)
+        - Docker / Docker Compose
+        - Systemd Service
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the problem...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Send photo to bot
+        2. Send video...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs or Error Messages
+      description: Please paste any relevant error logs or responses (ensure sensitive tokens are masked!).
+      render: shell
