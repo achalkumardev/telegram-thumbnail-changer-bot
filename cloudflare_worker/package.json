@@ -1,0 +1,12 @@
+{
+  "name": "thumbswap-bot",
+  "version": "1.0.0",
+  "description": "Serverless Telegram Video Cover Changer Bot on Cloudflare Workers",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.151.1"
+  }
+}

@@ -1,0 +1,13 @@
+name = "thumbswap-bot"
+main = "index.js"
+compatibility_date = "2026-10-18"
+workers_dev = true
+
+account_id = "ad36a2bcd729a91d84ec721cd0b3856c"
+
+[[kv_namespaces]]
+binding = "THUMB_KV"
+id = "e5b9c74537184406a45c0028a2a6b152"
+
+[vars]
+BOT_NAME = "ThumbSwap Bot"
