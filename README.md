@@ -68,6 +68,10 @@ This bot leverages Telegram's modern `cover` parameter in the `sendVideo` Bot AP
 ├── docs/
 │   ├── ARCHITECTURE.md       # Deep dive into Server-Side Pointer Swap Architecture
 │   └── DEPLOYMENT.md         # Production deployment & service orchestration guide
+├── scripts/
+│   ├── run.sh                # Auto-restarting background supervisor
+│   ├── manage.sh             # Background service manager (start, stop, status, logs)
+│   └── coverbot.service      # Linux systemd service unit template
 ├── src/
 │   ├── __init__.py           # Package marker
 │   ├── bot.py                # Main Telegram Bot logic & event handlers
@@ -84,9 +88,6 @@ This bot leverages Telegram's modern `cover` parameter in the `sendVideo` Bot AP
 ├── docker-compose.yml        # Docker Compose service definition
 ├── Makefile                  # Developer workflow automation (install, test, run, clean)
 ├── pyproject.toml            # PEP 518/621 modern package specification & dependencies
-├── coverbot.service          # Linux systemd service unit template
-├── run.sh                    # Auto-restarting background supervisor
-├── manage.sh                 # Background service manager (start, stop, status, logs)
 ├── README.md                 # Project overview and documentation
 └── LICENSE                   # MIT License
 ```
@@ -126,28 +127,30 @@ API_HASH=your_api_hash_here
 
 ## 💻 Running the Bot
 
-### Option A: Built-in Service Manager (`manage.sh`)
+### Option A: Built-in Service Manager (`scripts/manage.sh` or `make`)
 
 The included management script handles background daemonization and auto-restarting:
 
 ```bash
-# Make scripts executable
-chmod +x manage.sh run.sh
-
 # Start bot in background
-./manage.sh start
+make start
+# Or directly: ./scripts/manage.sh start
 
 # Check status
-./manage.sh status
+make status
+# Or directly: ./scripts/manage.sh status
 
 # View live logs
-./manage.sh logs
+make logs
+# Or directly: ./scripts/manage.sh logs
 
 # Restart bot
-./manage.sh restart
+make restart
+# Or directly: ./scripts/manage.sh restart
 
 # Stop bot
-./manage.sh stop
+make stop
+# Or directly: ./scripts/manage.sh stop
 ```
 
 ---
@@ -171,7 +174,8 @@ docker compose down
 
 ```bash
 # Copy service file to systemd directory
-sudo cp coverbot.service /etc/systemd/system/coverbot.service
+sudo cp scripts/coverbot.service /etc/systemd/system/coverbot.service
+
 
 # Reload systemd daemon
 sudo systemctl daemon-reload

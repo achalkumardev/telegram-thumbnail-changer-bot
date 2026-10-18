@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# manage.sh - Helper script to start, stop, restart, check status, and view logs
+# scripts/manage.sh - Helper script to start, stop, restart, check status, and view logs
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PID_FILE="$SCRIPT_DIR/bot.pid"
-LOG_FILE="$SCRIPT_DIR/bot.log"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PID_FILE="$PROJECT_ROOT/bot.pid"
+LOG_FILE="$PROJECT_ROOT/bot.log"
+SUPERVISOR_SCRIPT="$SCRIPT_DIR/run.sh"
 
 start() {
     if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
@@ -12,7 +14,7 @@ start() {
         exit 0
     fi
     echo "Starting Telegram Video Cover Changer Bot in background..."
-    setsid "$SCRIPT_DIR/run.sh" </dev/null >/dev/null 2>&1 &
+    setsid "$SUPERVISOR_SCRIPT" </dev/null >/dev/null 2>&1 &
     sleep 2
     if [ -f "$PID_FILE" ] && kill -0 "$(cat "$PID_FILE")" 2>/dev/null; then
         echo "Bot started successfully! (Supervisor PID: $(cat "$PID_FILE"))"

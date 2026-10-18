@@ -25,20 +25,20 @@ install-dev: $(VENV) ## Install development and test dependencies from pyproject
 run: $(VENV) ## Run bot directly in foreground
 	$(VENV_BIN)/python -u src/bot.py
 
-start: ## Start bot in background via manage.sh
-	./manage.sh start
+start: ## Start bot in background via scripts/manage.sh
+	./scripts/manage.sh start
 
 stop: ## Stop background bot process
-	./manage.sh stop
+	./scripts/manage.sh stop
 
 restart: ## Restart background bot process
-	./manage.sh restart
+	./scripts/manage.sh restart
 
 status: ## Check background bot status
-	./manage.sh status
+	./scripts/manage.sh status
 
 logs: ## View real-time bot logs
-	./manage.sh logs
+	./scripts/manage.sh logs
 
 test: $(VENV) ## Run test suite using pytest
 	$(PYTEST) -v tests/

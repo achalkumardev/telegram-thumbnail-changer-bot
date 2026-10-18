@@ -14,7 +14,7 @@ This document outlines the standard deployment workflows for production VPS envi
 
 ## 1. Local VPS Supervisor Deployment (Included)
 
-The repository includes a battle-tested background supervisor loop (`run.sh`) and a control script (`manage.sh`).
+The repository includes a battle-tested background supervisor loop (`scripts/run.sh`) and a control script (`scripts/manage.sh`).
 
 ### Setup:
 ```bash
@@ -31,17 +31,19 @@ cp .env.example .env
 nano .env
 
 # Make scripts executable
-chmod +x run.sh manage.sh
+chmod +x scripts/*.sh
 
 # Start daemon
-./manage.sh start
+./scripts/manage.sh start
+# Or via Makefile:
+make start
 ```
 
 ### Management Commands:
-- **Status:** `./manage.sh status`
-- **Live Logs:** `./manage.sh logs`
-- **Restart:** `./manage.sh restart`
-- **Stop:** `./manage.sh stop`
+- **Status:** `./scripts/manage.sh status` (or `make status`)
+- **Live Logs:** `./scripts/manage.sh logs` (or `make logs`)
+- **Restart:** `./scripts/manage.sh restart` (or `make restart`)
+- **Stop:** `./scripts/manage.sh stop` (or `make stop`)
 
 ---
 
@@ -51,7 +53,7 @@ For systems utilizing systemd for service orchestration:
 
 1. Copy the provided unit file:
    ```bash
-   sudo cp coverbot.service /etc/systemd/system/coverbot.service
+   sudo cp scripts/coverbot.service /etc/systemd/system/coverbot.service
    ```
 
 2. Edit paths and user if needed:

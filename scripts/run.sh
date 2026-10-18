@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# run.sh - Supervisor loop for Telegram Video Cover Changer Bot
+# scripts/run.sh - Supervisor loop for Telegram Video Cover Changer Bot
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$SCRIPT_DIR"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_ROOT"
 
-VENV_PYTHON="$SCRIPT_DIR/venv/bin/python3"
-LOG_FILE="$SCRIPT_DIR/bot.log"
-PID_FILE="$SCRIPT_DIR/bot.pid"
+VENV_PYTHON="$PROJECT_ROOT/venv/bin/python3"
+LOG_FILE="$PROJECT_ROOT/bot.log"
+PID_FILE="$PROJECT_ROOT/bot.pid"
 
 echo $$ > "$PID_FILE"
 
@@ -25,7 +27,7 @@ while true; do
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Launching bot process from src/bot.py..." >> "$LOG_FILE"
     
     # Run unbuffered python from src/bot.py and pipe output to log file
-    "$VENV_PYTHON" -u "$SCRIPT_DIR/src/bot.py" >> "$LOG_FILE" 2>&1 || true
+    "$VENV_PYTHON" -u "$PROJECT_ROOT/src/bot.py" >> "$LOG_FILE" 2>&1 || true
     
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Bot process exited. Restarting in 3 seconds..." >> "$LOG_FILE"
     sleep 3
