@@ -23,7 +23,7 @@ install-dev: $(VENV) ## Install development and test dependencies from pyproject
 	$(PIP) install -e ".[dev]"
 
 run: $(VENV) ## Run bot directly in foreground
-	$(VENV_BIN)/python -u src/bot.py
+	$(VENV_BIN)/python -u -m src
 
 start: ## Start bot in background via scripts/manage.sh
 	./scripts/manage.sh start

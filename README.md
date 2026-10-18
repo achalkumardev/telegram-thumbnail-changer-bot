@@ -74,6 +74,7 @@ This bot leverages Telegram's modern `cover` parameter in the `sendVideo` Bot AP
 │   └── coverbot.service      # Linux systemd service unit template
 ├── src/
 │   ├── __init__.py           # Package marker
+│   ├── __main__.py           # Modular execution entry point (python -m src)
 │   ├── bot.py                # Main Telegram Bot logic & event handlers
 │   ├── config.py             # Robust environment configuration loader
 │   └── storage.py            # High-speed in-memory RAM thumbnail cache

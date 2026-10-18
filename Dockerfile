@@ -23,5 +23,5 @@ RUN pip install --no-cache-dir .
 # Copy remaining project files
 COPY . .
 
-# Run bot
-CMD ["python", "src/bot.py"]
+# Run bot as modular package
+CMD ["python", "-m", "src"]

@@ -42,6 +42,10 @@ dev = [
     "black>=24.10.0",
 ]
 
+[project.scripts]
+coverbot = "bot:main_entry"
+
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 testpaths = ["tests"]

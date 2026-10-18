@@ -269,8 +269,13 @@ async def main() -> None:
         logger.info("Bot session closed.")
 
 
-if __name__ == "__main__":
+def main_entry() -> None:
+    """Synchronous entry point for CLI command (coverbot) and __main__."""
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         logger.info("Bot stopped cleanly.")
+
+
+if __name__ == "__main__":
+    main_entry()
