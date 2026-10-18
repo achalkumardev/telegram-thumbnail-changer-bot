@@ -30,3 +30,9 @@ bot.pid
 .idea/
 .vscode/
 *.swp
+
+# Node.js and Wrangler
+node_modules/
+.wrangler/
+package-lock.json.backup
+
