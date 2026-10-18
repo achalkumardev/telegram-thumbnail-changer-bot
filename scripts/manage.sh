@@ -35,6 +35,9 @@ stop() {
         rm -f "$PID_FILE"
     fi
     echo "Stopping any running bot processes..."
+    pkill -f "$PROJECT_ROOT/scripts/run.sh" 2>/dev/null || true
+    pkill -f "$PROJECT_ROOT/venv/bin/python3" 2>/dev/null || true
+    pkill -f "python3.*-m src" 2>/dev/null || true
     pkill -f "python3.*(src/bot\.py|bot\.py)" 2>/dev/null || true
     echo "Bot stopped."
 }
