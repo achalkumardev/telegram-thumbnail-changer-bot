@@ -62,6 +62,22 @@ ThumbSwap Bot leverages Telegram's modern `cover` parameter in the `sendVideo` B
 
 ---
 
+## 🕹️ Bot Commands
+
+| Command | Description | Access |
+|---|---|---|
+| `/start` | Launch bot, register user & display welcome guide | Public |
+| `/help` | Detailed step-by-step usage instructions | Public |
+| `/addthumb` | Guide to add thumbnail or save directly by replying to a photo | Public |
+| `/mythumb` (or `/viewthumb`) | View your currently saved thumbnail image | Public |
+| `/delthumb` (or `/clear`) | Delete your saved thumbnail from storage | Public |
+| `/setting` (or `/settings`) | View user configuration, streaming, and engine settings | Public |
+| `/status` | View bot system status, uptime, latency, and user stats | Public |
+| `/restart` | Refresh user session and re-initialize bot state | Public |
+| `/broadcast` (or `/brotcast`) | Broadcast announcement or forwarded post to all users | Admin Only |
+
+---
+
 ## 📂 Project Structure
 
 ```

@@ -22,3 +22,5 @@ if not BOT_TOKEN:
     raise ValueError("BOT_TOKEN is required. Please set it in your .env file (see .env.example).")
 
 API_ID: int = int(API_ID_RAW) if API_ID_RAW else 0
+ADMIN_ID_RAW = os.getenv("ADMIN_ID", "7437014244").strip()
+ADMIN_ID: int = int(ADMIN_ID_RAW) if ADMIN_ID_RAW.isdigit() else 7437014244

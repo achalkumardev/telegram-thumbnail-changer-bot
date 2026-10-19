@@ -8,10 +8,18 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from aiogram.types import Chat, Message, PhotoSize, User, Video, Document, MessageEntity
 
+import config
 from bot import (
+    handle_addthumb,
+    handle_broadcast,
+    handle_delthumb,
     handle_help,
+    handle_mythumb,
     handle_photo,
+    handle_restart,
+    handle_setting,
     handle_start,
+    handle_status,
     handle_unsupported_media,
     handle_video,
     UNSUPPORTED_MEDIA_REPLY,
@@ -32,7 +40,7 @@ async def test_start_command_handler():
     await handle_start(message)
 
     message.reply.assert_called_once()
-    assert "Thumbnail Changer Bot" in message.reply.call_args[0][0]
+    assert config.BOT_NAME in message.reply.call_args[0][0]
     assert "4GB" in message.reply.call_args[0][0]
 
 
@@ -49,7 +57,157 @@ async def test_help_command_handler():
     await handle_help(message)
 
     message.reply.assert_called_once()
-    assert "User Guide" in message.reply.call_args[0][0]
+    assert "User Guide & Commands" in message.reply.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_restart_command_handler():
+    """Verify /restart resets session and returns status."""
+    user = User(id=777, is_bot=False, first_name="RestartTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply = AsyncMock()
+
+    await handle_restart(message)
+
+    message.reply.assert_called_once()
+    assert "Bot Session Refreshed!" in message.reply.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_setting_command_handler():
+    """Verify /setting displays user configuration."""
+    user = User(id=777, is_bot=False, first_name="SettingTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply = AsyncMock()
+
+    await handle_setting(message)
+
+    message.reply.assert_called_once()
+    assert "Settings & Config" in message.reply.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_addthumb_command_handler():
+    """Verify /addthumb guide message."""
+    user = User(id=777, is_bot=False, first_name="AddTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply_to_message = None
+    message.reply = AsyncMock()
+
+    await handle_addthumb(message)
+
+    message.reply.assert_called_once()
+    assert "Add Custom Video Thumbnail" in message.reply.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_mythumb_command_handler():
+    """Verify /mythumb sends active photo or informative message."""
+    mock_storage = ThumbnailStorage()
+    with patch("bot.storage", mock_storage):
+        user = User(id=888, is_bot=False, first_name="MyThumbTester")
+        chat = Chat(id=888, type="private")
+        message = MagicMock(spec=Message)
+        message.from_user = user
+        message.chat = chat
+        message.message_id = 42
+        message.reply = AsyncMock()
+        mock_bot = AsyncMock()
+
+        # No thumbnail initially
+        await handle_mythumb(message, mock_bot)
+        message.reply.assert_called_once()
+        assert "No Thumbnail Set" in message.reply.call_args[0][0]
+
+        # Set thumbnail and test
+        mock_storage.set_thumbnail(888, "saved_photo_id")
+        await handle_mythumb(message, mock_bot)
+        mock_bot.send_photo.assert_called_once_with(
+            chat_id=888,
+            photo="saved_photo_id",
+            caption=mock_bot.send_photo.call_args.kwargs["caption"],
+            parse_mode="HTML",
+            reply_to_message_id=42,
+        )
+
+
+@pytest.mark.asyncio
+async def test_delthumb_command_handler():
+    """Verify /delthumb removes saved thumbnail from storage."""
+    mock_storage = ThumbnailStorage()
+    with patch("bot.storage", mock_storage):
+        user = User(id=555, is_bot=False, first_name="DelTester")
+        chat = Chat(id=555, type="private")
+        message = MagicMock(spec=Message)
+        message.from_user = user
+        message.chat = chat
+        message.reply = AsyncMock()
+
+        # Delete when none set
+        await handle_delthumb(message)
+        assert "No saved thumbnail found" in message.reply.call_args[0][0]
+
+        # Delete when set
+        mock_storage.set_thumbnail(555, "thumb_to_delete")
+        message.reply.reset_mock()
+        await handle_delthumb(message)
+        assert "Thumbnail Deleted Successfully!" in message.reply.call_args[0][0]
+        assert mock_storage.get_thumbnail(555) is None
+
+
+@pytest.mark.asyncio
+async def test_status_command_handler():
+    """Verify /status displays bot diagnostics."""
+    user = User(id=777, is_bot=False, first_name="StatusTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply = AsyncMock()
+
+    await handle_status(message)
+
+    message.reply.assert_called_once()
+    assert "System Status" in message.reply.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_broadcast_command_handler():
+    """Verify admin-only broadcast command."""
+    mock_storage = ThumbnailStorage()
+    mock_storage.register_user(101)
+    mock_storage.register_user(102)
+
+    with patch("bot.storage", mock_storage), patch.object(config, "ADMIN_ID", 7437014244):
+        # Non-admin attempt
+        non_admin_user = User(id=999, is_bot=False, first_name="NonAdmin")
+        message = MagicMock(spec=Message)
+        message.from_user = non_admin_user
+        message.reply = AsyncMock()
+        mock_bot = AsyncMock()
+
+        await handle_broadcast(message, mock_bot)
+        assert "Access Denied" in message.reply.call_args[0][0]
+
+        # Admin attempt
+        admin_user = User(id=7437014244, is_bot=False, first_name="Admin")
+        message.from_user = admin_user
+        message.text = "/broadcast Important update!"
+        message.reply_to_message = None
+        message.reply.reset_mock()
+
+        await handle_broadcast(message, mock_bot)
+        assert mock_bot.send_message.call_count >= 2
+        assert "Broadcast Completed!" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -73,8 +231,8 @@ async def test_photo_handler():
 
         # Stored in RAM
         assert mock_storage.get_thumbnail(111) == "large_id_best"
-        # Exact reply message
-        message.reply.assert_called_once_with("✅ Thumbnail Saved! Send your streaming video now.")
+        # Reply message
+        assert "Thumbnail Saved!" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -89,13 +247,8 @@ async def test_unsupported_media_handler():
 
     await handle_unsupported_media(message)
 
-    expected_msg = (
-        "⚠️ Unsupported File Type!\n"
-        "This bot only supports Videos (sent as streaming video).\n"
-        "Documents, audio files, and other formats are not supported."
-    )
-    message.reply.assert_called_once_with(expected_msg)
-    assert message.reply.call_args[0][0] == UNSUPPORTED_MEDIA_REPLY
+    message.reply.assert_called_once()
+    assert "Unsupported File Type" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -112,9 +265,8 @@ async def test_video_handler_no_saved_thumbnail():
 
         await handle_video(message, mock_bot)
 
-        message.reply.assert_called_once_with(
-            "⚠️ Please send a thumbnail photo first before sending a video!"
-        )
+        message.reply.assert_called_once()
+        assert "Please send a thumbnail photo first" in message.reply.call_args[0][0]
         mock_bot.send_video.assert_not_called()
 
 

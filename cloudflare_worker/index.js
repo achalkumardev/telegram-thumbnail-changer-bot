@@ -1,11 +1,12 @@
 /**
  * ThumbSwap Bot - Cloudflare Workers Serverless Edition 🎬⚡
  * Zero-Download Server-Side Pointer Swap Architecture on Cloudflare Edge.
+ * Up to 4GB Video Thumbnail Swapper running 24/7 serverless.
  */
 
-const UNSUPPORTED_MEDIA_REPLY = `⚠️ Unsupported File Type!
-This bot only supports Videos (sent as streaming video).
-Documents, audio files, and other formats are not supported.`;
+const UNSUPPORTED_MEDIA_REPLY = `⚠️ <b>Unsupported File Type!</b>\n` +
+  `This bot only supports Videos (sent as streaming video).\n` +
+  `Documents, audio files, stickers, and other formats are not supported.`;
 
 export default {
   async fetch(request, env, ctx) {
@@ -48,6 +49,34 @@ export default {
 };
 
 /**
+ * Register user ID in Cloudflare KV user registry
+ */
+async function registerUser(userId, env) {
+  try {
+    const raw = await env.THUMB_KV.get("system:users");
+    let users = raw ? JSON.parse(raw) : [];
+    if (!users.includes(userId)) {
+      users.push(userId);
+      await env.THUMB_KV.put("system:users", JSON.stringify(users));
+    }
+  } catch (err) {
+    console.error("Failed to register user in KV:", err);
+  }
+}
+
+/**
+ * Retrieve all registered user IDs from Cloudflare KV
+ */
+async function getAllUsers(env) {
+  try {
+    const raw = await env.THUMB_KV.get("system:users");
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Handle incoming Telegram messages
  */
 async function handleMessage(message, env) {
@@ -57,7 +86,12 @@ async function handleMessage(message, env) {
 
   if (!userId) return;
 
+  // Track user in database
+  await registerUser(userId, env);
+
   const text = (message.text || "").trim();
+  const lowerText = text.toLowerCase();
+  const adminId = (env.ADMIN_ID || "7437014244").toString();
 
   // 1. /start command
   if (text === "/start" || text.startsWith("/start ")) {
@@ -72,6 +106,14 @@ async function handleMessage(message, env) {
       `• <b>Zero Download & Zero Re-upload:</b> Instant round-trip (1–5 seconds)\n` +
       `• <b>100% Quality Retention:</b> Original bitrate, resolution, audio & streaming flags preserved\n` +
       `• <b>Serverless Cloud:</b> Powered by Cloudflare Edge 24/7 with zero downtime!\n\n` +
+      `<b>🛠️ Available Commands:</b>\n` +
+      `/addthumb - How to set a thumbnail\n` +
+      `/mythumb - View your current thumbnail\n` +
+      `/delthumb - Delete your saved thumbnail\n` +
+      `/setting - View bot & user settings\n` +
+      `/status - View bot system diagnostics\n` +
+      `/restart - Refresh your session\n` +
+      `/help - Detailed user guide\n\n` +
       `Send your thumbnail photo to get started! 🖼️`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
@@ -84,15 +126,22 @@ async function handleMessage(message, env) {
 
   // 2. /help command
   if (text === "/help" || text.startsWith("/help ")) {
-    const helpText = `📖 <b>ThumbSwap Bot - User Guide</b>\n\n` +
-      `<b>Step 1:</b> Send a photo you want to use as your thumbnail.\n` +
-      `<b>Step 2:</b> Send a video as a <i>Streaming Video</i> (not as a document/file).\n` +
-      `<b>Step 3:</b> Receive your video back within seconds with the new thumbnail!\n\n` +
-      `<b>Available Commands:</b>\n` +
-      `/start - Start the bot & show welcome message\n` +
-      `/help - Display this guide\n` +
-      `/viewthumb - View your currently saved thumbnail\n` +
-      `/clear - Delete your saved thumbnail from memory`;
+    const helpText = `📖 <b>ThumbSwap Bot - User Guide & Commands</b>\n\n` +
+      `<b>📌 Step-by-Step Usage:</b>\n` +
+      `1️⃣ <b>Set Thumbnail:</b> Send any photo to the bot (or use /addthumb).\n` +
+      `2️⃣ <b>Send Video:</b> Send a streaming video (up to 4GB).\n` +
+      `3️⃣ <b>Done:</b> Receive your video with the new cover in 1–5 seconds!\n\n` +
+      `<b>🛠️ Available Commands:</b>\n` +
+      `• /start - Start the bot & show welcome guide\n` +
+      `• /help - Display this commands list\n` +
+      `• /addthumb - Guide or shortcut to set a thumbnail\n` +
+      `• /mythumb - View your currently active thumbnail\n` +
+      `• /delthumb - Delete your saved thumbnail\n` +
+      `• /setting - View your settings & configuration\n` +
+      `• /status - View bot system diagnostics & stats\n` +
+      `• /restart - Refresh your bot session\n\n` +
+      `<b>👑 Admin Commands:</b>\n` +
+      `• /broadcast (or /brotcast) - Send announcement to all users`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -102,49 +151,249 @@ async function handleMessage(message, env) {
     return;
   }
 
-  // 3. /viewthumb command
-  if (text === "/viewthumb" || text.startsWith("/viewthumb ")) {
+  // 3. /restart command
+  if (text === "/restart" || text.startsWith("/restart ")) {
+    const savedCover = await env.THUMB_KV.get(userId);
+    const restartText = `🔄 <b>Bot Session Refreshed!</b>\n\n` +
+      `Your session has been re-initialized and all systems are operational.\n\n` +
+      `• <b>Thumbnail Status:</b> ${savedCover ? "Active ✅ (Ready)" : "Not Set ❌"}\n` +
+      `• <b>Engine:</b> Cloudflare Workers Serverless Edge (24/7)\n` +
+      `• <b>Status:</b> 🟢 Ready\n\n` +
+      `Send a photo to set your thumbnail or use /help for guidance!`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: restartText,
+      parse_mode: "HTML",
+      reply_to_message_id: message.message_id,
+    });
+    return;
+  }
+
+  // 4. /setting or /settings command
+  if (text === "/setting" || text === "/settings" || text.startsWith("/setting ") || text.startsWith("/settings ")) {
+    const savedCover = await env.THUMB_KV.get(userId);
+    const settingsText = `⚙️ <b>ThumbSwap Bot Settings & Config:</b>\n\n` +
+      `• <b>User ID:</b> <code>${userId}</code>\n` +
+      `• <b>Active Thumbnail:</b> ${savedCover ? "Set ✅ (Ready)" : "Not Set ❌"}\n` +
+      `• <b>Streaming Optimization:</b> Enabled (<code>supports_streaming: true</code>)\n` +
+      `• <b>Caption Preservation:</b> 100% Intact\n` +
+      `• <b>Max File Size:</b> Up to 4GB\n` +
+      `• <b>Engine:</b> Cloudflare Global Edge (Serverless 24/7)\n\n` +
+      `💡 <i>Use /mythumb to view your saved cover or /delthumb to delete it.</i>`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: settingsText,
+      parse_mode: "HTML",
+      reply_to_message_id: message.message_id,
+    });
+    return;
+  }
+
+  // 5. /addthumb command
+  if (text === "/addthumb" || text.startsWith("/addthumb ")) {
+    // Check if user replied to an existing photo with /addthumb
+    if (message.reply_to_message && message.reply_to_message.photo && Array.isArray(message.reply_to_message.photo)) {
+      const photos = message.reply_to_message.photo;
+      const highestRes = photos[photos.length - 1];
+      await env.THUMB_KV.put(userId, highestRes.file_id);
+      await callTelegram(env.BOT_TOKEN, "sendMessage", {
+        chat_id: chatId,
+        text: "✅ <b>Thumbnail Saved from Replied Photo!</b> Send your streaming video now.",
+        parse_mode: "HTML",
+        reply_to_message_id: message.message_id,
+      });
+      return;
+    }
+
+    const addThumbGuide = `🖼️ <b>Add Custom Video Thumbnail:</b>\n\n` +
+      `Please send a <b>Photo</b> (JPEG/PNG) to set it as your video thumbnail.\n\n` +
+      `💡 <b>Tips for Best Quality:</b>\n` +
+      `• Recommended ratio: <b>16:9</b> (1280×720 or 1920×1080)\n` +
+      `• Send as normal photo (compressed), not as a document.\n` +
+      `• You can also reply to any photo with <code>/addthumb</code> to save it directly!`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: addThumbGuide,
+      parse_mode: "HTML",
+      reply_to_message_id: message.message_id,
+    });
+    return;
+  }
+
+  // 6. /mythumb or /viewthumb command
+  if (text === "/mythumb" || text.startsWith("/mythumb ") || text === "/viewthumb" || text.startsWith("/viewthumb ")) {
     const savedCover = await env.THUMB_KV.get(userId);
     if (savedCover) {
       await callTelegram(env.BOT_TOKEN, "sendPhoto", {
         chat_id: chatId,
         photo: savedCover,
-        caption: "📸 Here is your currently saved thumbnail photo.",
+        caption: `📸 <b>Your Active Thumbnail:</b>\n\n` +
+          `This cover is currently saved and will be applied to every streaming video you send!\n\n` +
+          `🗑️ <i>To remove it, send /delthumb.</i>`,
+        parse_mode: "HTML",
         reply_to_message_id: message.message_id,
       });
     } else {
       await callTelegram(env.BOT_TOKEN, "sendMessage", {
         chat_id: chatId,
-        text: "ℹ️ You do not have any saved thumbnail yet.\nSend a photo to save it as your new thumbnail!",
+        text: `ℹ️ <b>No Thumbnail Set!</b>\n\n` +
+          `You do not have any saved thumbnail yet.\n` +
+          `Send a photo or use /addthumb to set one!`,
+        parse_mode: "HTML",
+        reply_to_message_id: message.message_id,
       });
     }
     return;
   }
 
-  // 4. /clear or /delthumb command
-  if (text === "/clear" || text === "/delthumb") {
-    await env.THUMB_KV.delete(userId);
+  // 7. /delthumb or /clear command
+  if (text === "/delthumb" || text === "/clear" || text.startsWith("/delthumb ") || text.startsWith("/clear ")) {
+    const existing = await env.THUMB_KV.get(userId);
+    if (existing) {
+      await env.THUMB_KV.delete(userId);
+      await callTelegram(env.BOT_TOKEN, "sendMessage", {
+        chat_id: chatId,
+        text: `🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n` +
+          `Your saved thumbnail has been removed from Cloudflare storage.\n` +
+          `Videos will now be sent with Telegram's default preview until you set a new one.`,
+        parse_mode: "HTML",
+        reply_to_message_id: message.message_id,
+      });
+    } else {
+      await callTelegram(env.BOT_TOKEN, "sendMessage", {
+        chat_id: chatId,
+        text: `ℹ️ <b>No saved thumbnail found to delete.</b>\nSend a photo or use /addthumb to set one!`,
+        parse_mode: "HTML",
+        reply_to_message_id: message.message_id,
+      });
+    }
+    return;
+  }
+
+  // 8. /broadcast or /brotcast command (Admin only)
+  if (
+    lowerText === "/broadcast" ||
+    lowerText.startsWith("/broadcast ") ||
+    lowerText === "/brotcast" ||
+    lowerText.startsWith("/brotcast ")
+  ) {
+    if (userId !== adminId && userId !== "7437014244") {
+      await callTelegram(env.BOT_TOKEN, "sendMessage", {
+        chat_id: chatId,
+        text: "⛔ <b>Access Denied:</b> This command is restricted to the bot administrator.",
+        parse_mode: "HTML",
+        reply_to_message_id: message.message_id,
+      });
+      return;
+    }
+
+    const isReply = Boolean(message.reply_to_message);
+    const broadcastContent = text.replace(/^\/(broadcast|brotcast)\s*/i, "").trim();
+
+    if (!broadcastContent && !isReply) {
+      await callTelegram(env.BOT_TOKEN, "sendMessage", {
+        chat_id: chatId,
+        text: `⚠️ <b>Usage:</b>\n<code>/broadcast &lt;your message&gt;</code>\nOr reply to any message with <code>/broadcast</code>.`,
+        parse_mode: "HTML",
+        reply_to_message_id: message.message_id,
+      });
+      return;
+    }
+
+    let allUsers = await getAllUsers(env);
+    if (!allUsers.includes(userId)) {
+      allUsers.push(userId);
+    }
+
+    let successCount = 0;
+    let failedCount = 0;
+
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
-      text: "🗑️ Saved thumbnail removed from Cloudflare storage. Send a new photo anytime!",
+      text: `📢 <i>Starting broadcast to ${allUsers.length} users...</i>`,
+      parse_mode: "HTML",
+    });
+
+    for (const targetId of allUsers) {
+      try {
+        let res;
+        if (isReply) {
+          res = await callTelegram(env.BOT_TOKEN, "copyMessage", {
+            chat_id: targetId,
+            from_chat_id: chatId,
+            message_id: message.reply_to_message.message_id,
+          });
+        } else {
+          res = await callTelegram(env.BOT_TOKEN, "sendMessage", {
+            chat_id: targetId,
+            text: `📢 <b>Announcement:</b>\n\n${broadcastContent}`,
+            parse_mode: "HTML",
+          });
+        }
+
+        if (res && res.ok) {
+          successCount++;
+        } else {
+          failedCount++;
+        }
+      } catch (e) {
+        failedCount++;
+      }
+    }
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: `📢 <b>Broadcast Completed!</b>\n\n` +
+        `• <b>Total Targets:</b> ${allUsers.length}\n` +
+        `• <b>Successfully Delivered:</b> ${successCount} ✅\n` +
+        `• <b>Failed / Blocked:</b> ${failedCount} ❌`,
+      parse_mode: "HTML",
+      reply_to_message_id: message.message_id,
     });
     return;
   }
 
-  // 5. Photo Received -> Save to Cloudflare KV
+  // 9. /status command
+  if (text === "/status" || text.startsWith("/status ")) {
+    const savedCover = await env.THUMB_KV.get(userId);
+    const allUsers = await getAllUsers(env);
+    const statusText = `📊 <b>ThumbSwap Bot - System Status:</b>\n\n` +
+      `• <b>Bot State:</b> 🟢 Operational (24/7)\n` +
+      `• <b>Platform:</b> Cloudflare Workers Serverless Edge\n` +
+      `• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n` +
+      `• <b>Max Video Size:</b> Up to 4GB\n` +
+      `• <b>Your User ID:</b> <code>${userId}</code>\n` +
+      `• <b>Your Thumbnail:</b> ${savedCover ? "Active ✅" : "Not Set ❌"}\n` +
+      `• <b>Total Registered Users:</b> ${allUsers.length}\n` +
+      `• <b>Edge Latency:</b> ~1ms–5ms`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: statusText,
+      parse_mode: "HTML",
+      reply_to_message_id: message.message_id,
+    });
+    return;
+  }
+
+  // 10. Photo Received -> Save to Cloudflare KV
   if (message.photo && Array.isArray(message.photo) && message.photo.length > 0) {
     const highestRes = message.photo[message.photo.length - 1];
     await env.THUMB_KV.put(userId, highestRes.file_id);
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
-      text: "✅ Thumbnail Saved! Send your streaming video now.",
+      text: "✅ <b>Thumbnail Saved!</b> Send your streaming video now.",
+      parse_mode: "HTML",
       reply_to_message_id: message.message_id,
     });
     return;
   }
 
-  // 6. Non-Streaming Media Filtering (Document, Audio, Voice, Sticker, Animation)
+  // 11. Non-Streaming Media Filtering (Document, Audio, Voice, Sticker, Animation)
   if (
     message.document ||
     message.audio ||
@@ -156,18 +405,20 @@ async function handleMessage(message, env) {
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
       text: UNSUPPORTED_MEDIA_REPLY,
+      parse_mode: "HTML",
       reply_to_message_id: message.message_id,
     });
     return;
   }
 
-  // 7. Streaming Video Received -> Zero-Download Pointer Swap
+  // 12. Streaming Video Received -> Zero-Download Pointer Swap
   if (message.video) {
     const savedCover = await env.THUMB_KV.get(userId);
     if (!savedCover) {
       await callTelegram(env.BOT_TOKEN, "sendMessage", {
         chat_id: chatId,
-        text: "⚠️ Please send a thumbnail photo first before sending a video!",
+        text: "⚠️ <b>Please send a thumbnail photo first before sending a video!</b>\nUse /addthumb or send an image.",
+        parse_mode: "HTML",
         reply_to_message_id: message.message_id,
       });
       return;
@@ -211,11 +462,11 @@ async function handleMessage(message, env) {
     return;
   }
 
-  // 8. Plain text fallback
+  // 13. Plain text fallback
   if (text) {
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
-      text: "ℹ️ Send me a <b>Photo</b> first to save your thumbnail, then send a <b>Streaming Video</b> to instantly apply it!",
+      text: "ℹ️ Send me a <b>Photo</b> first to save your thumbnail, then send a <b>Streaming Video</b> to instantly apply it!\n\nUse /help to see all available commands.",
       parse_mode: "HTML",
     });
   }
