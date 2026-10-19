@@ -21,7 +21,7 @@ if str(_ROOT_DIR) not in sys.path:
 
 from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ChatAction, ChatType
-from aiogram.exceptions import TelegramAPIError
+from aiogram.exceptions import TelegramAPIError, TelegramBadRequest
 from aiogram.filters import Command, CommandStart
 from aiogram.types import (
     CallbackQuery,
@@ -551,31 +551,260 @@ async def handle_other_text(message: Message) -> None:
     )
 
 
+async def edit_or_reply(
+    message: Message,
+    text: str,
+    reply_markup: Optional[InlineKeyboardMarkup] = None,
+) -> None:
+    """Edit message in-place for inline button clicks, ignoring 'message is not modified'."""
+    try:
+        await message.edit_text(text, parse_mode="HTML", reply_markup=reply_markup)
+    except TelegramBadRequest as e:
+        if "message is not modified" in str(e).lower():
+            return
+        await message.reply(text, parse_mode="HTML", reply_markup=reply_markup)
+    except Exception:
+        await message.reply(text, parse_mode="HTML", reply_markup=reply_markup)
+
+
 @dp.callback_query(F.data.startswith("cmd_"))
 async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
-    """Handle interactive inline buttons."""
+    """Handle interactive inline buttons with smooth in-place message editing."""
     await query.answer()
     data = query.data
     msg = query.message
     if not msg:
         return
 
+    user = query.from_user
+    user_id = user.id if user else 0
+    storage.register_user(user_id)
+    saved_cover = storage.get_thumbnail(user_id)
+
     if data == "cmd_start":
-        await handle_start(msg)
+        user_name = user.first_name if user else "there"
+        welcome_text = (
+            f"👋 <b>Hello, {user_name}! Welcome to {config.BOT_NAME}</b> 🎬⚡\n\n"
+            f"The premier Telegram tool to swap or attach custom thumbnails to streaming videos "
+            f"(up to <b>4GB</b>) in just <b>1–2 seconds</b> with ZERO quality loss!\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🚀 <b>How It Works:</b>\n"
+            "1️⃣ <b>Send a Photo:</b> Set your high-resolution thumbnail.\n"
+            "2️⃣ <b>Send a Video:</b> Up to 4GB (sent as streaming video).\n"
+            "3️⃣ <b>Instant Delivery:</b> Receive your video back in <b>1–2 seconds</b>!\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "💎 <b>Why Creators Love This Bot:</b>\n"
+            "• ⚡ <b>Blazing Fast:</b> 1–2 second instant pointer swap\n"
+            "• 📦 <b>4GB Capacity:</b> Handles large movies, series & lectures\n"
+            "• 🛡️ <b>100% Quality:</b> Original bitrate, resolution & audio intact\n"
+            "• 🌐 <b>24/7 Cloudflare Edge:</b> Zero lag, always online\n\n"
+            "👇 <i>Tap an option below or send a photo directly to begin:</i>"
+        )
+        await edit_or_reply(msg, welcome_text, MAIN_KEYBOARD)
+
     elif data == "cmd_mythumb":
-        await handle_mythumb(msg, bot)
+        if saved_cover:
+            thumb_text = (
+                "📸 <b>Your Active Thumbnail:</b>\n\n"
+                "• <b>Status:</b> Active & Set ✅\n"
+                "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
+                "• <b>Target:</b> Streaming Videos up to 4GB\n"
+                "• <b>Storage:</b> Permanent Storage\n\n"
+                "💡 <i>This thumbnail will be automatically attached to any video you send. "
+                "Tap 'View Full Photo' below if you want the original image sent, or send any new photo to replace it.</i>"
+            )
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(text="👁️ View Full Photo", callback_data="cmd_view_photo"),
+                        InlineKeyboardButton(text="🗑️ Delete Thumbnail", callback_data="cmd_delthumb"),
+                    ],
+                    [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+                ]
+            )
+            await edit_or_reply(msg, thumb_text, keyboard)
+        else:
+            no_thumb_text = (
+                "ℹ️ <b>No Thumbnail Set!</b>\n\n"
+                "You haven't set any custom thumbnail yet.\n"
+                "Send any photo right now to set it as your thumbnail!"
+            )
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")]
+                ]
+            )
+            await edit_or_reply(msg, no_thumb_text, keyboard)
+
+    elif data == "cmd_view_photo":
+        if saved_cover:
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(text="🗑️ Delete Thumbnail", callback_data="cmd_delthumb")],
+                    [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+                ]
+            )
+            await bot.send_photo(
+                chat_id=msg.chat.id,
+                photo=saved_cover,
+                caption="📸 <b>Your Active Thumbnail Photo</b>\n\nApplied to all streaming videos in 1–2s!",
+                parse_mode="HTML",
+                reply_markup=keyboard,
+            )
+
     elif data == "cmd_setting":
-        await handle_setting(msg)
+        settings_text = (
+            f"⚙️ <b>{config.BOT_NAME} — Settings</b>\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"• <b>User ID:</b> <code>{user_id}</code>\n"
+            f"• <b>Saved Thumbnail:</b> {'Active ✅ (Ready)' if saved_cover else 'Not Set ❌'}\n"
+            "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
+            "• <b>Max File Size:</b> 📦 Up to 4GB\n"
+            "• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n"
+            "• <b>Caption Preservation:</b> 🟢 100% Original Kept\n"
+            "• <b>Processing:</b> ⚡ Zero-Download Pointer Swap\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "💡 <i>Tap 'My Thumbnail' to inspect your cover or 'Back to Menu' to return.</i>"
+        )
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="🖼️ My Thumbnail", callback_data="cmd_mythumb"),
+                    InlineKeyboardButton(text="📊 Bot Status", callback_data="cmd_status"),
+                ],
+                [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+            ]
+        )
+        await edit_or_reply(msg, settings_text, keyboard)
+
     elif data == "cmd_status":
-        await handle_status(msg)
-    elif data == "cmd_help":
-        await handle_help(msg)
+        total_users = max(storage.total_users(), 1)
+        status_text = (
+            f"📊 <b>{config.BOT_NAME} — System Status</b>\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "• <b>Service Status:</b> 🟢 Operational (24/7 Live)\n"
+            "• <b>Swap Architecture:</b> Zero-Download Telegram Pointer Swap\n"
+            "• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n"
+            "• <b>Max Video Size:</b> 📦 Up to 4GB\n"
+            f"• <b>Your User ID:</b> <code>{user_id}</code>\n"
+            f"• <b>Your Saved Thumbnail:</b> {'Active ✅' if saved_cover else 'Not Set ❌'}\n"
+            f"• <b>Total Users:</b> 👥 {total_users}\n"
+            "• <b>Latency:</b> ⚡ ~1ms–5ms\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━"
+        )
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="🔄 Refresh Status", callback_data="cmd_status")],
+                [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+            ]
+        )
+        await edit_or_reply(msg, status_text, keyboard)
+
     elif data == "cmd_about":
-        await handle_about(msg)
+        about_text = (
+            f"ℹ️ <b>About {config.BOT_NAME}</b> 🎬⚡\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"• <b>Bot Name:</b> {config.BOT_NAME}\n"
+            "• <b>Version:</b> 2.0.0 (Production)\n"
+            "• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n"
+            "• <b>Max File Size:</b> Up to 4GB\n"
+            "• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n"
+            "• <b>Developer:</b> @achalkumardev\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>"
+        )
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="📢 Updates", callback_data="cmd_updates"),
+                    InlineKeyboardButton(text="⚙️ Settings", callback_data="cmd_setting"),
+                ],
+                [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+            ]
+        )
+        await edit_or_reply(msg, about_text, keyboard)
+
     elif data == "cmd_updates":
-        await handle_updates(msg)
+        updates_text = (
+            f"📢 <b>{config.BOT_NAME} — Updates & Changelog</b>\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "🎉 <b>What's New in v2.0:</b>\n"
+            "• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n"
+            "• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n"
+            "• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n"
+            "• 🔘 <b>In-Place Message Editing:</b> Smooth app-like navigation without message spam\n"
+            "• 💾 <b>Persistent Storage:</b> Thumbnails saved permanently\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "🔔 <i>Stay tuned for more upcoming updates & features!</i>"
+        )
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="ℹ️ About Bot", callback_data="cmd_about"),
+                    InlineKeyboardButton(text="📖 Help", callback_data="cmd_help"),
+                ],
+                [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+            ]
+        )
+        await edit_or_reply(msg, updates_text, keyboard)
+
+    elif data == "cmd_help":
+        help_text = (
+            f"📖 <b>{config.BOT_NAME} — User Guide</b>\n\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "⚡ <b>How It Works:</b>\n"
+            "This bot uses Telegram's server-side pointer swap. It never downloads or re-encodes your video, "
+            "meaning <b>100% original quality</b> and instant <b>1–2s</b> delivery!\n"
+            "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+            "📌 <b>3 Simple Steps:</b>\n"
+            "1️⃣ <b>Set Thumbnail:</b> Send any photo to the bot (or use /addthumb).\n"
+            "2️⃣ <b>Send Video:</b> Send a streaming video (up to 4GB).\n"
+            "3️⃣ <b>Done:</b> Receive your video with the new thumbnail in <b>1–2 seconds</b>!\n\n"
+            "🛠️ <b>Quick Commands:</b>\n"
+            "• /start — Welcome menu & guide\n"
+            "• /addthumb — Set or update thumbnail\n"
+            "• /mythumb — Check active thumbnail\n"
+            "• /delthumb — Delete active thumbnail\n"
+            "• /setting — Check your preferences\n"
+            "• /status — Check live bot health\n"
+            "• /restart — Refresh your bot session\n"
+            "• /help — Show this commands menu"
+        )
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="ℹ️ About", callback_data="cmd_about"),
+                    InlineKeyboardButton(text="📢 Updates", callback_data="cmd_updates"),
+                ],
+                [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+            ]
+        )
+        await edit_or_reply(msg, help_text, keyboard)
+
     elif data == "cmd_delthumb":
-        await handle_delthumb(msg)
+        if saved_cover:
+            storage.delete_thumbnail(user_id)
+            del_text = (
+                "🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n"
+                "Your saved thumbnail has been removed from storage.\n"
+                "Incoming videos will now use Telegram's default preview until you set a new one."
+            )
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")]
+                ]
+            )
+            await edit_or_reply(msg, del_text, keyboard)
+        else:
+            none_text = (
+                "ℹ️ <b>No saved thumbnail found to delete.</b>\nSend a photo or use /addthumb to set one!"
+            )
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")]
+                ]
+            )
+            await edit_or_reply(msg, none_text, keyboard)
 
 
 async def main() -> None:

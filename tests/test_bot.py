@@ -6,13 +6,15 @@ Verifies message routing, unsupported media filtering, pointer swap payload crea
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from aiogram.types import Chat, Message, PhotoSize, User, Video, Document, MessageEntity
+from aiogram.types import CallbackQuery, Chat, Message, PhotoSize, User, Video, Document, MessageEntity
 
 import config
 from bot import (
+    edit_or_reply,
     handle_about,
     handle_addthumb,
     handle_broadcast,
+    handle_callback_query,
     handle_delthumb,
     handle_help,
     handle_mythumb,
@@ -356,3 +358,92 @@ async def test_video_handler_pointer_swap():
         assert kwargs["width"] == 1920
         assert kwargs["height"] == 1080
         assert kwargs["has_spoiler"] is True
+
+
+@pytest.mark.asyncio
+async def test_callback_query_inplace_editing():
+    """Verify callback query edits the existing message in-place rather than sending a new message."""
+    user = User(id=777, is_bot=False, first_name="ClickTester")
+    chat = Chat(id=777, type="private")
+    
+    mock_message = MagicMock(spec=Message)
+    mock_message.chat = chat
+    mock_message.message_id = 123
+    mock_message.edit_text = AsyncMock()
+    mock_message.reply = AsyncMock()
+
+    mock_query = MagicMock(spec=CallbackQuery)
+    mock_query.id = "query_123"
+    mock_query.from_user = user
+    mock_query.message = mock_message
+    mock_query.data = "cmd_start"
+    mock_query.answer = AsyncMock()
+
+    mock_bot = AsyncMock()
+
+    await handle_callback_query(mock_query, mock_bot)
+
+    mock_query.answer.assert_called_once()
+    mock_message.edit_text.assert_called_once()
+    mock_message.reply.assert_not_called()
+    assert config.BOT_NAME in mock_message.edit_text.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_callback_query_settings_inplace():
+    """Verify cmd_setting edits the existing message with settings menu."""
+    user = User(id=777, is_bot=False, first_name="ClickTester")
+    chat = Chat(id=777, type="private")
+    
+    mock_message = MagicMock(spec=Message)
+    mock_message.chat = chat
+    mock_message.message_id = 123
+    mock_message.edit_text = AsyncMock()
+    mock_message.reply = AsyncMock()
+
+    mock_query = MagicMock(spec=CallbackQuery)
+    mock_query.id = "query_456"
+    mock_query.from_user = user
+    mock_query.message = mock_message
+    mock_query.data = "cmd_setting"
+    mock_query.answer = AsyncMock()
+
+    mock_bot = AsyncMock()
+
+    await handle_callback_query(mock_query, mock_bot)
+
+    mock_message.edit_text.assert_called_once()
+    mock_message.reply.assert_not_called()
+    assert "Settings" in mock_message.edit_text.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_callback_query_delthumb_inplace():
+    """Verify cmd_delthumb deletes thumbnail and updates existing message."""
+    mock_storage = ThumbnailStorage()
+    with patch("bot.storage", mock_storage):
+        user = User(id=999, is_bot=False, first_name="DelTester")
+        chat = Chat(id=999, type="private")
+        mock_storage.set_thumbnail(999, "thumb_to_del")
+
+        mock_message = MagicMock(spec=Message)
+        mock_message.chat = chat
+        mock_message.message_id = 123
+        mock_message.edit_text = AsyncMock()
+        mock_message.reply = AsyncMock()
+
+        mock_query = MagicMock(spec=CallbackQuery)
+        mock_query.id = "query_789"
+        mock_query.from_user = user
+        mock_query.message = mock_message
+        mock_query.data = "cmd_delthumb"
+        mock_query.answer = AsyncMock()
+
+        mock_bot = AsyncMock()
+
+        await handle_callback_query(mock_query, mock_bot)
+
+        mock_message.edit_text.assert_called_once()
+        mock_message.reply.assert_not_called()
+        assert "Thumbnail Deleted Successfully!" in mock_message.edit_text.call_args[0][0]
+        assert mock_storage.get_thumbnail(999) is None

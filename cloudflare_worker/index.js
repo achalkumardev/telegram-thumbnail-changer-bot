@@ -108,9 +108,33 @@ async function getAllUsers(env) {
 }
 
 /**
+ * Helper to edit an existing message in-place or send a new one if editing fails
+ */
+async function editOrSendMessage(botToken, chatId, messageId, text, replyMarkup) {
+  if (messageId) {
+    const res = await callTelegram(botToken, "editMessageText", {
+      chat_id: chatId,
+      message_id: messageId,
+      text: text,
+      parse_mode: "HTML",
+      reply_markup: replyMarkup,
+    });
+    if (res && (res.ok || (res.description && res.description.includes("message is not modified")))) {
+      return res;
+    }
+  }
+  return await callTelegram(botToken, "sendMessage", {
+    chat_id: chatId,
+    text: text,
+    parse_mode: "HTML",
+    reply_markup: replyMarkup,
+  });
+}
+
+/**
  * Send the production-ready Welcome Message with Interactive Buttons
  */
-async function sendWelcomeMessage(chatId, user, env) {
+async function sendWelcomeMessage(chatId, user, env, messageId = null) {
   const userName = user.first_name || "there";
   const welcomeText = `👋 <b>Hello, ${userName}! Welcome to Thumbnail Changer Bot</b> 🎬⚡\n\n` +
     `The premier Telegram tool to swap or attach custom thumbnails to streaming videos ` +
@@ -128,12 +152,7 @@ async function sendWelcomeMessage(chatId, user, env) {
     `• 🌐 <b>24/7 Cloudflare Edge:</b> Zero lag, always online\n\n` +
     `👇 <i>Tap an option below or send a photo directly to begin:</i>`;
 
-  await callTelegram(env.BOT_TOKEN, "sendMessage", {
-    chat_id: chatId,
-    text: welcomeText,
-    parse_mode: "HTML",
-    reply_markup: MAIN_KEYBOARD,
-  });
+  await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, welcomeText, MAIN_KEYBOARD);
 }
 
 /**
@@ -141,6 +160,7 @@ async function sendWelcomeMessage(chatId, user, env) {
  */
 async function handleCallbackQuery(query, env) {
   const chatId = query.message ? query.message.chat.id : query.from.id;
+  const messageId = query.message ? query.message.message_id : null;
   const user = query.from || {};
   const userId = user.id ? user.id.toString() : null;
   const data = query.data;
@@ -153,36 +173,51 @@ async function handleCallbackQuery(query, env) {
   if (!userId) return;
 
   if (data === "cmd_start") {
-    await sendWelcomeMessage(chatId, user, env);
+    await sendWelcomeMessage(chatId, user, env, messageId);
     return;
   }
 
   if (data === "cmd_mythumb") {
     const savedCover = await env.THUMB_KV.get(userId);
     if (savedCover) {
+      const thumbText = `📸 <b>Your Active Thumbnail:</b>\n\n` +
+        `• <b>Status:</b> Active & Set ✅\n` +
+        `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
+        `• <b>Target:</b> Streaming Videos up to 4GB\n` +
+        `• <b>Storage:</b> Permanent Cloudflare KV\n\n` +
+        `💡 <i>This thumbnail will be automatically attached to any video you send. Tap 'View Full Photo' below if you want the original image sent, or send any new photo to replace it.</i>`;
+
+      await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, thumbText, {
+        inline_keyboard: [
+          [{ text: "👁️ View Full Photo", callback_data: "cmd_view_photo" }, { text: "🗑️ Delete Thumbnail", callback_data: "cmd_delthumb" }],
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
+      });
+    } else {
+      const noThumbText = `ℹ️ <b>No Thumbnail Set!</b>\n\n` +
+        `You haven't set any custom thumbnail yet.\n` +
+        `Send any photo right now to set it as your thumbnail!`;
+
+      await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, noThumbText, {
+        inline_keyboard: [
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
+      });
+    }
+    return;
+  }
+
+  if (data === "cmd_view_photo") {
+    const savedCover = await env.THUMB_KV.get(userId);
+    if (savedCover) {
       await callTelegram(env.BOT_TOKEN, "sendPhoto", {
         chat_id: chatId,
         photo: savedCover,
-        caption: `📸 <b>Your Active Thumbnail:</b>\n\n` +
-          `This thumbnail is saved and will be automatically applied to any streaming video you send in <b>1–2 seconds</b>!\n\n` +
-          `🗑️ <i>To remove it, tap 'Delete Thumbnail' or send /delthumb.</i>`,
+        caption: `📸 <b>Your Active Thumbnail Photo</b>\n\nApplied to all streaming videos in 1–2s!`,
         parse_mode: "HTML",
         reply_markup: {
           inline_keyboard: [
             [{ text: "🗑️ Delete Thumbnail", callback_data: "cmd_delthumb" }],
-            [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-          ]
-        }
-      });
-    } else {
-      await callTelegram(env.BOT_TOKEN, "sendMessage", {
-        chat_id: chatId,
-        text: `ℹ️ <b>No Thumbnail Set!</b>\n\n` +
-          `You haven't set any custom thumbnail yet.\n` +
-          `Send any photo right now to set it!`,
-        parse_mode: "HTML",
-        reply_markup: {
-          inline_keyboard: [
             [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
           ]
         }
@@ -203,18 +238,13 @@ async function handleCallbackQuery(query, env) {
       `• <b>Caption Preservation:</b> 🟢 100% Original Kept\n` +
       `• <b>Edge Platform:</b> 🌐 Cloudflare Serverless (24/7)\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `💡 <i>Send /mythumb to view your image or /delthumb to remove it.</i>`;
+      `💡 <i>Tap 'My Thumbnail' to inspect your cover or 'Back to Menu' to return.</i>`;
 
-    await callTelegram(env.BOT_TOKEN, "sendMessage", {
-      chat_id: chatId,
-      text: settingsText,
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "🖼️ View Thumbnail", callback_data: "cmd_mythumb" }, { text: "📊 Status", callback_data: "cmd_status" }],
-          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-        ]
-      }
+    await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, settingsText, {
+      inline_keyboard: [
+        [{ text: "🖼️ My Thumbnail", callback_data: "cmd_mythumb" }, { text: "📊 Bot Status", callback_data: "cmd_status" }],
+        [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+      ]
     });
     return;
   }
@@ -234,15 +264,11 @@ async function handleCallbackQuery(query, env) {
       `• <b>Edge Latency:</b> ⚡ ~1ms–5ms\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━`;
 
-    await callTelegram(env.BOT_TOKEN, "sendMessage", {
-      chat_id: chatId,
-      text: statusText,
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-        ]
-      }
+    await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, statusText, {
+      inline_keyboard: [
+        [{ text: "🔄 Refresh Status", callback_data: "cmd_status" }],
+        [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+      ]
     });
     return;
   }
@@ -261,16 +287,11 @@ async function handleCallbackQuery(query, env) {
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
       `💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>`;
 
-    await callTelegram(env.BOT_TOKEN, "sendMessage", {
-      chat_id: chatId,
-      text: aboutText,
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "📢 Updates", callback_data: "cmd_updates" }, { text: "⚙️ Settings", callback_data: "cmd_setting" }],
-          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-        ]
-      }
+    await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, aboutText, {
+      inline_keyboard: [
+        [{ text: "📢 Updates", callback_data: "cmd_updates" }, { text: "⚙️ Settings", callback_data: "cmd_setting" }],
+        [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+      ]
     });
     return;
   }
@@ -282,21 +303,16 @@ async function handleCallbackQuery(query, env) {
       `• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n` +
       `• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n` +
       `• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n` +
-      `• 🔘 <b>Interactive Inline UI:</b> Full touch button navigation\n` +
+      `• 🔘 <b>In-Place Message Editing:</b> Smooth app-like navigation without message spam\n` +
       `• 💾 <b>Persistent KV Database:</b> Thumbnails saved permanently\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
       `🔔 <i>Stay tuned for more upcoming updates & features!</i>`;
 
-    await callTelegram(env.BOT_TOKEN, "sendMessage", {
-      chat_id: chatId,
-      text: updatesText,
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "ℹ️ About Bot", callback_data: "cmd_about" }, { text: "📖 Help", callback_data: "cmd_help" }],
-          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-        ]
-      }
+    await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, updatesText, {
+      inline_keyboard: [
+        [{ text: "ℹ️ About Bot", callback_data: "cmd_about" }, { text: "📖 Help", callback_data: "cmd_help" }],
+        [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+      ]
     });
     return;
   }
@@ -322,15 +338,11 @@ async function handleCallbackQuery(query, env) {
       `• /restart — Refresh your bot session\n` +
       `• /help — Show this commands menu`;
 
-    await callTelegram(env.BOT_TOKEN, "sendMessage", {
-      chat_id: chatId,
-      text: helpText,
-      parse_mode: "HTML",
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-        ]
-      }
+    await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, helpText, {
+      inline_keyboard: [
+        [{ text: "ℹ️ About", callback_data: "cmd_about" }, { text: "📢 Updates", callback_data: "cmd_updates" }],
+        [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+      ]
     });
     return;
   }
@@ -339,28 +351,21 @@ async function handleCallbackQuery(query, env) {
     const existing = await env.THUMB_KV.get(userId);
     if (existing) {
       await env.THUMB_KV.delete(userId);
-      await callTelegram(env.BOT_TOKEN, "sendMessage", {
-        chat_id: chatId,
-        text: `🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n` +
-          `Your saved thumbnail has been removed from Cloudflare storage.\n` +
-          `Incoming videos will now use Telegram's default preview until you set a new one.`,
-        parse_mode: "HTML",
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-          ]
-        }
+      const delText = `🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n` +
+        `Your saved thumbnail has been removed from Cloudflare storage.\n` +
+        `Incoming videos will now use Telegram's default preview until you set a new one.`;
+
+      await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, delText, {
+        inline_keyboard: [
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
       });
     } else {
-      await callTelegram(env.BOT_TOKEN, "sendMessage", {
-        chat_id: chatId,
-        text: `ℹ️ <b>No saved thumbnail found to delete.</b>\nSend a photo or use /addthumb to set one!`,
-        parse_mode: "HTML",
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
-          ]
-        }
+      const noneText = `ℹ️ <b>No saved thumbnail found to delete.</b>\nSend a photo or use /addthumb to set one!`;
+      await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, noneText, {
+        inline_keyboard: [
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
       });
     }
   }
