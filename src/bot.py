@@ -23,7 +23,12 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.enums import ChatAction, ChatType
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message
+from aiogram.types import (
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    Message,
+)
 
 import config
 from storage import storage
@@ -46,6 +51,23 @@ UNSUPPORTED_MEDIA_REPLY = (
     "Documents, audio files, stickers, and other formats are not supported."
 )
 
+MAIN_KEYBOARD = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="🖼️ My Thumbnail", callback_data="cmd_mythumb"),
+            InlineKeyboardButton(text="⚙️ Settings", callback_data="cmd_setting"),
+        ],
+        [
+            InlineKeyboardButton(text="📊 Bot Status", callback_data="cmd_status"),
+            InlineKeyboardButton(text="📖 Help Guide", callback_data="cmd_help"),
+        ],
+        [
+            InlineKeyboardButton(text="🗑️ Delete Thumbnail", callback_data="cmd_delthumb"),
+        ],
+    ]
+)
+
+
 
 @dp.message(CommandStart(), F.chat.type == ChatType.PRIVATE)
 async def handle_start(message: Message) -> None:
@@ -56,31 +78,24 @@ async def handle_start(message: Message) -> None:
         storage.register_user(user.id)
 
     welcome_text = (
-        f"⚡ <b>Welcome to {config.BOT_NAME}!</b> 🎬\n\n"
-        f"Hey <b>{user_name}</b>, I can instantly replace the thumbnail of any streaming video "
+        f"👋 <b>Hello, {user_name}! Welcome to {config.BOT_NAME}</b> 🎬⚡\n\n"
+        "The premier Telegram tool to swap or attach custom thumbnails to streaming videos "
         "(up to <b>4GB</b>) in just <b>1–2 seconds</b> with ZERO quality loss!\n\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n"
-        "📌 <b>How to Use:</b>\n"
-        "1️⃣ <b>Step 1:</b> Send any photo to set as your thumbnail (or use /addthumb).\n"
-        "2️⃣ <b>Step 2:</b> Send your streaming video (up to 4GB).\n"
-        "3️⃣ <b>Step 3:</b> Receive your video back in <b>1–2 seconds</b> with the new thumbnail applied!\n"
-        "━━━━━━━━━━━━━━━━━━━━━\n\n"
-        "✨ <b>Key Highlights:</b>\n"
-        "• ⚡ <b>Blazing Fast:</b> 1–2 second instant swap\n"
-        "• 📦 <b>Huge Video Support:</b> Up to 4GB files\n"
-        "• 💎 <b>100% Quality:</b> Original bitrate, resolution & audio intact\n"
-        "• 🌐 <b>24/7 Uptime:</b> Always active with zero downtime!\n\n"
-        "<b>🛠️ Available Commands:</b>\n"
-        "• /addthumb - Set or update your thumbnail\n"
-        "• /mythumb - View your currently saved thumbnail\n"
-        "• /delthumb - Delete your saved thumbnail\n"
-        "• /setting - View bot & user settings\n"
-        "• /status - Check live system status & ping\n"
-        "• /restart - Refresh your bot session\n"
-        "• /help - Detailed user guide\n\n"
-        "👇 <i>Send a photo right now to get started!</i> 🖼️"
+        "━━━━━━━━━━━━━━━━━━━━━━━\n"
+        "🚀 <b>How It Works:</b>\n"
+        "1️⃣ <b>Send a Photo:</b> Set your high-resolution thumbnail.\n"
+        "2️⃣ <b>Send a Video:</b> Up to 4GB (sent as streaming video).\n"
+        "3️⃣ <b>Instant Delivery:</b> Receive your video back in <b>1–2 seconds</b>!\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "💎 <b>Why Creators Love This Bot:</b>\n"
+        "• ⚡ <b>Blazing Fast:</b> 1–2 second instant pointer swap\n"
+        "• 📦 <b>4GB Capacity:</b> Handles large movies, series & lectures\n"
+        "• 🛡️ <b>100% Quality:</b> Original bitrate, resolution & audio intact\n"
+        "• 🌐 <b>24/7 Cloudflare Edge:</b> Zero lag, always online\n\n"
+        "👇 <i>Tap an option below or send a photo directly to begin:</i>"
     )
-    await message.reply(welcome_text, parse_mode="HTML")
+    await message.reply(welcome_text, parse_mode="HTML", reply_markup=MAIN_KEYBOARD)
+
 
 
 @dp.message(Command("help"), F.chat.type == ChatType.PRIVATE)
@@ -476,7 +491,31 @@ async def handle_other_text(message: Message) -> None:
     )
 
 
+@dp.callback_query(F.data.startswith("cmd_"))
+async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
+    """Handle interactive inline buttons."""
+    await query.answer()
+    data = query.data
+    msg = query.message
+    if not msg:
+        return
+
+    if data == "cmd_start":
+        await handle_start(msg)
+    elif data == "cmd_mythumb":
+        await handle_mythumb(msg, bot)
+    elif data == "cmd_setting":
+        await handle_setting(msg)
+    elif data == "cmd_status":
+        await handle_status(msg)
+    elif data == "cmd_help":
+        await handle_help(msg)
+    elif data == "cmd_delthumb":
+        await handle_delthumb(msg)
+
+
 async def main() -> None:
+
     """Initialize bot instance and start long polling."""
     logger.info("Starting %s with Zero-Download Pointer Swap Architecture...", config.BOT_NAME)
     
