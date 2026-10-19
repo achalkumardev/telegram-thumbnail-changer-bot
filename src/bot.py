@@ -92,10 +92,10 @@ async def handle_start(message: Message) -> None:
         "3️⃣ <b>Instant Delivery:</b> Receive your video back in <b>1–2 seconds</b>!\n"
         "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         "💎 <b>Why Creators Love This Bot:</b>\n"
-        "• ⚡ <b>Blazing Fast:</b> 1–2 second instant pointer swap\n"
-        "• 📦 <b>4GB Capacity:</b> Handles large movies, series & lectures\n"
-        "• 🛡️ <b>100% Quality:</b> Original bitrate, resolution & audio intact\n"
-        "• 🌐 <b>24/7 Cloudflare Edge:</b> Zero lag, always online\n\n"
+        "• ⚡ <b>Instant Delivery:</b> 1–2 second direct server swap\n"
+        "• 📦 <b>Up to 4GB:</b> Handles full-length movies, anime & shows\n"
+        "• 🛡️ <b>Lossless Quality:</b> Original bitrate, resolution & audio intact\n"
+        "• 🎬 <b>Fast Streaming:</b> Native Telegram streaming ready\n\n"
         "👇 <i>Tap an option below or send a photo directly to begin:</i>"
     )
     await message.reply(welcome_text, parse_mode="HTML", reply_markup=MAIN_KEYBOARD)
@@ -145,12 +145,13 @@ async def handle_about(message: Message) -> None:
         "━━━━━━━━━━━━━━━━━━━━━━━\n"
         f"• <b>Bot Name:</b> {config.BOT_NAME}\n"
         "• <b>Version:</b> 2.0.0 (Production)\n"
-        "• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n"
+        "• <b>Technology:</b> Server-Side Video Pointer Swap\n"
         "• <b>Max File Size:</b> Up to 4GB\n"
         "• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n"
+        "• <b>Quality:</b> 💎 100% Lossless\n"
         "• <b>Developer:</b> @achalkumardev\n"
         "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        "💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>"
+        "💡 <i>Designed for creators, channels, and movie sharers who want instant thumbnail changes without downloading or quality loss.</i>"
     )
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -171,13 +172,13 @@ async def handle_updates(message: Message) -> None:
         f"📢 <b>{config.BOT_NAME} — Updates & Changelog</b>\n\n"
         "━━━━━━━━━━━━━━━━━━━━━━━\n"
         "🎉 <b>What's New in v2.0:</b>\n"
-        "• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n"
+        "• ⚡ <b>Blazing 1–2s Swap:</b> Instant cover update without re-uploading\n"
         "• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n"
-        "• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n"
-        "• 🔘 <b>Interactive Inline UI:</b> Full touch button navigation\n"
-        "• 💾 <b>Persistent KV Database:</b> Thumbnails saved permanently\n"
+        "• 🔘 <b>In-Place Navigation:</b> Smooth button clicks without chat clutter\n"
+        "• 🛡️ <b>Lossless Quality:</b> Original resolution & bitrate 100% preserved\n"
+        "• 💾 <b>Saved Thumbnail:</b> Active cover remembered automatically\n"
         "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-        "🔔 <i>Stay tuned for more upcoming updates & features!</i>"
+        "🔔 <i>Stay tuned for more upcoming creator features!</i>"
     )
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
@@ -201,7 +202,7 @@ async def handle_restart(message: Message) -> None:
 
     restart_text = (
         "🔄 <b>Session Refreshed Successfully!</b>\n\n"
-        "Your bot session has been re-initialized and is running at peak performance.\n\n"
+        "Your bot session has been refreshed and is running at peak performance.\n\n"
         f"• <b>Thumbnail:</b> {'Active ✅ (Ready)' if saved_cover else 'Not Set ❌'}\n"
         "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
         "• <b>Status:</b> 🟢 Operational\n\n"
@@ -227,7 +228,7 @@ async def handle_setting(message: Message) -> None:
         "• <b>Max File Size:</b> 📦 Up to 4GB\n"
         "• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n"
         "• <b>Caption Preservation:</b> 🟢 100% Original Kept\n"
-        "• <b>Processing:</b> ⚡ Zero-Download Pointer Swap\n"
+        "• <b>Engine:</b> ⚡ Instant Server Pointer Swap\n"
         "━━━━━━━━━━━━━━━━━━━━━\n\n"
         "💡 <i>Send /mythumb to view your image or /delthumb to remove it.</i>"
     )
@@ -328,13 +329,13 @@ async def handle_status(message: Message) -> None:
     status_text = (
         f"📊 <b>{config.BOT_NAME} — System Status</b>\n\n"
         "━━━━━━━━━━━━━━━━━━━━━\n"
-        "• <b>Status:</b> 🟢 Operational (24/7 Live)\n"
+        "• <b>System Health:</b> 🟢 Operational & Fast\n"
         "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
         "• <b>Max File Size:</b> 📦 Up to 4GB\n"
         f"• <b>Your User ID:</b> <code>{user_id}</code>\n"
         f"• <b>Your Thumbnail:</b> {'Active ✅' if saved_cover else 'Not Set ❌'}\n"
-        f"• <b>Total Registered Users:</b> 👥 {total_users}\n"
-        "• <b>Latency:</b> ⚡ ~1ms–5ms\n"
+        f"• <b>Total Users:</b> 👥 {total_users}\n"
+        "• <b>Quality:</b> 💎 100% Original (Lossless)\n"
         "━━━━━━━━━━━━━━━━━━━━━"
     )
     await message.reply(status_text, parse_mode="HTML")
@@ -594,10 +595,10 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
             "3️⃣ <b>Instant Delivery:</b> Receive your video back in <b>1–2 seconds</b>!\n"
             "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
             "💎 <b>Why Creators Love This Bot:</b>\n"
-            "• ⚡ <b>Blazing Fast:</b> 1–2 second instant pointer swap\n"
-            "• 📦 <b>4GB Capacity:</b> Handles large movies, series & lectures\n"
-            "• 🛡️ <b>100% Quality:</b> Original bitrate, resolution & audio intact\n"
-            "• 🌐 <b>24/7 Cloudflare Edge:</b> Zero lag, always online\n\n"
+            "• ⚡ <b>Instant Delivery:</b> 1–2 second direct server swap\n"
+            "• 📦 <b>Up to 4GB:</b> Handles full-length movies, anime & shows\n"
+            "• 🛡️ <b>Lossless Quality:</b> Original bitrate, resolution & audio intact\n"
+            "• 🎬 <b>Fast Streaming:</b> Native Telegram streaming ready\n\n"
             "👇 <i>Tap an option below or send a photo directly to begin:</i>"
         )
         await edit_or_reply(msg, welcome_text, MAIN_KEYBOARD)
@@ -609,7 +610,7 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
                 "• <b>Status:</b> Active & Set ✅\n"
                 "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
                 "• <b>Target:</b> Streaming Videos up to 4GB\n"
-                "• <b>Storage:</b> Permanent Storage\n\n"
+                "• <b>Storage:</b> Saved to Profile\n\n"
                 "💡 <i>This thumbnail will be automatically attached to any video you send. "
                 "Tap 'View Full Photo' below if you want the original image sent, or send any new photo to replace it.</i>"
             )
@@ -662,7 +663,7 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
             "• <b>Max File Size:</b> 📦 Up to 4GB\n"
             "• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n"
             "• <b>Caption Preservation:</b> 🟢 100% Original Kept\n"
-            "• <b>Processing:</b> ⚡ Zero-Download Pointer Swap\n"
+            "• <b>Engine:</b> ⚡ Instant Server Pointer Swap\n"
             "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
             "💡 <i>Tap 'My Thumbnail' to inspect your cover or 'Back to Menu' to return.</i>"
         )
@@ -682,14 +683,13 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
         status_text = (
             f"📊 <b>{config.BOT_NAME} — System Status</b>\n\n"
             "━━━━━━━━━━━━━━━━━━━━━━━\n"
-            "• <b>Service Status:</b> 🟢 Operational (24/7 Live)\n"
-            "• <b>Swap Architecture:</b> Zero-Download Telegram Pointer Swap\n"
-            "• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n"
-            "• <b>Max Video Size:</b> 📦 Up to 4GB\n"
+            "• <b>System Health:</b> 🟢 Operational & Fast\n"
+            "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
+            "• <b>Max File Size:</b> 📦 Up to 4GB\n"
             f"• <b>Your User ID:</b> <code>{user_id}</code>\n"
             f"• <b>Your Saved Thumbnail:</b> {'Active ✅' if saved_cover else 'Not Set ❌'}\n"
             f"• <b>Total Users:</b> 👥 {total_users}\n"
-            "• <b>Latency:</b> ⚡ ~1ms–5ms\n"
+            "• <b>Quality:</b> 💎 100% Original (Lossless)\n"
             "━━━━━━━━━━━━━━━━━━━━━━━"
         )
         keyboard = InlineKeyboardMarkup(
@@ -706,12 +706,13 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
             "━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"• <b>Bot Name:</b> {config.BOT_NAME}\n"
             "• <b>Version:</b> 2.0.0 (Production)\n"
-            "• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n"
+            "• <b>Technology:</b> Server-Side Video Pointer Swap\n"
             "• <b>Max File Size:</b> Up to 4GB\n"
             "• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n"
+            "• <b>Quality:</b> 💎 100% Lossless\n"
             "• <b>Developer:</b> @achalkumardev\n"
             "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>"
+            "💡 <i>Designed for creators, channels, and movie sharers who want instant thumbnail changes without downloading or quality loss.</i>"
         )
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
@@ -729,13 +730,13 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
             f"📢 <b>{config.BOT_NAME} — Updates & Changelog</b>\n\n"
             "━━━━━━━━━━━━━━━━━━━━━━━\n"
             "🎉 <b>What's New in v2.0:</b>\n"
-            "• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n"
+            "• ⚡ <b>Blazing 1–2s Swap:</b> Instant cover update without re-uploading\n"
             "• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n"
-            "• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n"
-            "• 🔘 <b>In-Place Message Editing:</b> Smooth app-like navigation without message spam\n"
-            "• 💾 <b>Persistent Storage:</b> Thumbnails saved permanently\n"
+            "• 🔘 <b>In-Place Navigation:</b> Smooth button clicks without chat clutter\n"
+            "• 🛡️ <b>Lossless Quality:</b> Original resolution & bitrate 100% preserved\n"
+            "• 💾 <b>Saved Thumbnail:</b> Active cover remembered automatically\n"
             "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            "🔔 <i>Stay tuned for more upcoming updates & features!</i>"
+            "🔔 <i>Stay tuned for more upcoming creator features!</i>"
         )
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
@@ -786,7 +787,7 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
             storage.delete_thumbnail(user_id)
             del_text = (
                 "🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n"
-                "Your saved thumbnail has been removed from storage.\n"
+                "Your saved thumbnail has been removed from your profile.\n"
                 "Incoming videos will now use Telegram's default preview until you set a new one."
             )
             keyboard = InlineKeyboardMarkup(

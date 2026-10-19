@@ -36,11 +36,10 @@ export default {
       return new Response(
         JSON.stringify({
           status: "online",
-          bot: "Thumbnail Changer Bot (Cloudflare Serverless)",
+          bot: "Thumbnail Changer Bot",
           speed: "1-2 seconds",
           max_size: "Up to 4GB",
-          architecture: "Zero-Download Server-Side Pointer Swap",
-          uptime: "24/7 Cloudflare Edge",
+          quality: "Lossless (Zero-Download Pointer Swap)",
         }),
         {
           headers: { "Content-Type": "application/json" },
@@ -146,10 +145,10 @@ async function sendWelcomeMessage(chatId, user, env, messageId = null) {
     `3️⃣ <b>Instant Delivery:</b> Receive your video back in <b>1–2 seconds</b>!\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
     `💎 <b>Why Creators Love This Bot:</b>\n` +
-    `• ⚡ <b>Blazing Fast:</b> 1–2 second instant pointer swap\n` +
-    `• 📦 <b>4GB Capacity:</b> Handles large movies, series & lectures\n` +
-    `• 🛡️ <b>100% Quality:</b> Original bitrate, resolution & audio intact\n` +
-    `• 🌐 <b>24/7 Cloudflare Edge:</b> Zero lag, always online\n\n` +
+    `• ⚡ <b>Instant Delivery:</b> 1–2 second direct server swap\n` +
+    `• 📦 <b>Up to 4GB:</b> Handles full-length movies, anime & shows\n` +
+    `• 🛡️ <b>Lossless Quality:</b> Original bitrate, resolution & audio intact\n` +
+    `• 🎬 <b>Fast Streaming:</b> Native Telegram streaming ready\n\n` +
     `👇 <i>Tap an option below or send a photo directly to begin:</i>`;
 
   await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, welcomeText, MAIN_KEYBOARD);
@@ -184,7 +183,7 @@ async function handleCallbackQuery(query, env) {
         `• <b>Status:</b> Active & Set ✅\n` +
         `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
         `• <b>Target:</b> Streaming Videos up to 4GB\n` +
-        `• <b>Storage:</b> Permanent Cloudflare KV\n\n` +
+        `• <b>Storage:</b> Saved to Profile\n\n` +
         `💡 <i>This thumbnail will be automatically attached to any video you send. Tap 'View Full Photo' below if you want the original image sent, or send any new photo to replace it.</i>`;
 
       await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, thumbText, {
@@ -236,7 +235,7 @@ async function handleCallbackQuery(query, env) {
       `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
       `• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n` +
       `• <b>Caption Preservation:</b> 🟢 100% Original Kept\n` +
-      `• <b>Edge Platform:</b> 🌐 Cloudflare Serverless (24/7)\n` +
+      `• <b>Engine:</b> ⚡ Instant Server Pointer Swap\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
       `💡 <i>Tap 'My Thumbnail' to inspect your cover or 'Back to Menu' to return.</i>`;
 
@@ -254,14 +253,13 @@ async function handleCallbackQuery(query, env) {
     const allUsers = await getAllUsers(env);
     const statusText = `📊 <b>Thumbnail Changer Bot — System Status</b>\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `• <b>Status:</b> 🟢 Operational (24/7 Live)\n` +
+      `• <b>System Health:</b> 🟢 Operational & Fast\n` +
       `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
       `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
       `• <b>Your User ID:</b> <code>${userId}</code>\n` +
       `• <b>Your Thumbnail:</b> ${savedCover ? "Active ✅" : "Not Set ❌"}\n` +
-      `• <b>Total Registered Users:</b> 👥 ${allUsers.length}\n` +
-      `• <b>Platform:</b> 🌐 Cloudflare Edge Network\n` +
-      `• <b>Edge Latency:</b> ⚡ ~1ms–5ms\n` +
+      `• <b>Total Users:</b> 👥 ${allUsers.length}\n` +
+      `• <b>Quality:</b> 💎 100% Original (Lossless)\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━`;
 
     await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, statusText, {
@@ -277,15 +275,14 @@ async function handleCallbackQuery(query, env) {
     const aboutText = `ℹ️ <b>About Thumbnail Changer Bot</b> 🎬⚡\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• <b>Bot Name:</b> Thumbnail Changer Bot\n` +
-      `• <b>Version:</b> 2.0.0 (Production Serverless)\n` +
-      `• <b>Hosting:</b> Cloudflare Workers Global Edge\n` +
-      `• <b>Database:</b> Cloudflare KV (Permanent)\n` +
-      `• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n` +
+      `• <b>Version:</b> 2.0.0 (Production)\n` +
+      `• <b>Technology:</b> Server-Side Video Pointer Swap\n` +
       `• <b>Max File Size:</b> Up to 4GB\n` +
       `• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n` +
+      `• <b>Quality:</b> 💎 100% Lossless\n` +
       `• <b>Developer:</b> @achalkumardev\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>`;
+      `💡 <i>Designed for creators, channels, and movie sharers who want instant thumbnail changes without downloading or quality loss.</i>`;
 
     await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, aboutText, {
       inline_keyboard: [
@@ -300,13 +297,13 @@ async function handleCallbackQuery(query, env) {
     const updatesText = `📢 <b>Thumbnail Changer Bot — Updates & Changelog</b>\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `🎉 <b>What's New in v2.0:</b>\n` +
-      `• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n` +
+      `• ⚡ <b>Blazing 1–2s Swap:</b> Instant cover update without re-uploading\n` +
       `• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n` +
-      `• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n` +
-      `• 🔘 <b>In-Place Message Editing:</b> Smooth app-like navigation without message spam\n` +
-      `• 💾 <b>Persistent KV Database:</b> Thumbnails saved permanently\n` +
+      `• 🔘 <b>In-Place Navigation:</b> Smooth button clicks without chat clutter\n` +
+      `• 🛡️ <b>Lossless Quality:</b> Original resolution & bitrate 100% preserved\n` +
+      `• 💾 <b>Saved Thumbnail:</b> Active cover remembered automatically\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `🔔 <i>Stay tuned for more upcoming updates & features!</i>`;
+      `🔔 <i>Stay tuned for more upcoming creator features!</i>`;
 
     await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, updatesText, {
       inline_keyboard: [
@@ -352,7 +349,7 @@ async function handleCallbackQuery(query, env) {
     if (existing) {
       await env.THUMB_KV.delete(userId);
       const delText = `🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n` +
-        `Your saved thumbnail has been removed from Cloudflare storage.\n` +
+        `Your saved thumbnail has been removed from your profile.\n` +
         `Incoming videos will now use Telegram's default preview until you set a new one.`;
 
       await editOrSendMessage(env.BOT_TOKEN, chatId, messageId, delText, {
@@ -436,15 +433,14 @@ async function handleMessage(message, env) {
     const aboutText = `ℹ️ <b>About Thumbnail Changer Bot</b> 🎬⚡\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• <b>Bot Name:</b> Thumbnail Changer Bot\n` +
-      `• <b>Version:</b> 2.0.0 (Production Serverless)\n` +
-      `• <b>Hosting:</b> Cloudflare Workers Global Edge\n` +
-      `• <b>Database:</b> Cloudflare KV (Permanent)\n` +
-      `• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n` +
+      `• <b>Version:</b> 2.0.0 (Production)\n` +
+      `• <b>Technology:</b> Server-Side Video Pointer Swap\n` +
       `• <b>Max File Size:</b> Up to 4GB\n` +
       `• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n` +
+      `• <b>Quality:</b> 💎 100% Lossless\n` +
       `• <b>Developer:</b> @achalkumardev\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>`;
+      `💡 <i>Designed for creators, channels, and movie sharers who want instant thumbnail changes without downloading or quality loss.</i>`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -466,13 +462,13 @@ async function handleMessage(message, env) {
     const updatesText = `📢 <b>Thumbnail Changer Bot — Updates & Changelog</b>\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `🎉 <b>What's New in v2.0:</b>\n` +
-      `• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n` +
+      `• ⚡ <b>Blazing 1–2s Swap:</b> Instant cover update without re-uploading\n` +
       `• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n` +
-      `• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n` +
-      `• 🔘 <b>Interactive Inline UI:</b> Full touch button navigation\n` +
-      `• 💾 <b>Persistent KV Database:</b> Thumbnails saved permanently\n` +
+      `• 🔘 <b>In-Place Navigation:</b> Smooth button clicks without chat clutter\n` +
+      `• 🛡️ <b>Lossless Quality:</b> Original resolution & bitrate 100% preserved\n` +
+      `• 💾 <b>Saved Thumbnail:</b> Active cover remembered automatically\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
-      `🔔 <i>Stay tuned for more upcoming updates & features!</i>`;
+      `🔔 <i>Stay tuned for more upcoming creator features!</i>`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -493,10 +489,9 @@ async function handleMessage(message, env) {
   if (text === "/restart" || text.startsWith("/restart ")) {
     const savedCover = await env.THUMB_KV.get(userId);
     const restartText = `🔄 <b>Session Refreshed Successfully!</b>\n\n` +
-      `Your bot session has been re-initialized and is running at peak performance.\n\n` +
+      `Your bot session has been refreshed and is running at peak performance.\n\n` +
       `• <b>Thumbnail:</b> ${savedCover ? "Active ✅ (Ready)" : "Not Set ❌"}\n` +
       `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
-      `• <b>Edge Network:</b> 🟢 24/7 Online\n` +
       `• <b>Status:</b> 🟢 Operational\n\n` +
       `<i>Send a photo or streaming video to continue!</i>`;
 
@@ -521,7 +516,7 @@ async function handleMessage(message, env) {
       `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
       `• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n` +
       `• <b>Caption Preservation:</b> 🟢 100% Original Kept\n` +
-      `• <b>Edge Platform:</b> 🌐 Cloudflare Serverless (24/7)\n` +
+      `• <b>Engine:</b> ⚡ Instant Server Pointer Swap\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
       `💡 <i>Send /mythumb to view your image or /delthumb to remove it.</i>`;
 
@@ -629,7 +624,7 @@ async function handleMessage(message, env) {
       await callTelegram(env.BOT_TOKEN, "sendMessage", {
         chat_id: chatId,
         text: `🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n` +
-          `Your saved thumbnail has been removed from Cloudflare storage.\n` +
+          `Your saved thumbnail has been removed from your profile.\n` +
           `Incoming videos will now use Telegram's default preview until you set a new one.`,
         parse_mode: "HTML",
         reply_to_message_id: message.message_id,
@@ -744,14 +739,13 @@ async function handleMessage(message, env) {
     const allUsers = await getAllUsers(env);
     const statusText = `📊 <b>Thumbnail Changer Bot — System Status</b>\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `• <b>Status:</b> 🟢 Operational (24/7 Live)\n` +
+      `• <b>System Health:</b> 🟢 Operational & Fast\n` +
       `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
       `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
       `• <b>Your User ID:</b> <code>${userId}</code>\n` +
       `• <b>Your Thumbnail:</b> ${savedCover ? "Active ✅" : "Not Set ❌"}\n` +
-      `• <b>Total Registered Users:</b> 👥 ${allUsers.length}\n` +
-      `• <b>Platform:</b> 🌐 Cloudflare Edge Network\n` +
-      `• <b>Edge Latency:</b> ⚡ ~1ms–5ms\n` +
+      `• <b>Total Users:</b> 👥 ${allUsers.length}\n` +
+      `• <b>Quality:</b> 💎 100% Original (Lossless)\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
