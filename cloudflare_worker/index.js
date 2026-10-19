@@ -1,23 +1,24 @@
 /**
- * ThumbSwap Bot - Cloudflare Workers Serverless Edition 🎬⚡
+ * Thumbnail Changer Bot 🎬⚡
+ * Cloudflare Workers Serverless Edition
  * Zero-Download Server-Side Pointer Swap Architecture on Cloudflare Edge.
- * Up to 4GB Video Thumbnail Swapper running 24/7 serverless.
+ * Up to 4GB Video Thumbnail Swapper in 1–2 seconds running 24/7 serverless.
  */
 
-const UNSUPPORTED_MEDIA_REPLY = `⚠️ <b>Unsupported File Type!</b>\n` +
-  `This bot only supports Videos (sent as streaming video).\n` +
+const UNSUPPORTED_MEDIA_REPLY = `⚠️ <b>Unsupported File Type!</b>\n\n` +
+  `This bot only supports <b>Videos</b> (sent as streaming video).\n` +
   `Documents, audio files, stickers, and other formats are not supported.`;
 
 export default {
   async fetch(request, env, ctx) {
-    const url = new URL(request.url);
-
     // Health check endpoint for monitoring
     if (request.method === "GET") {
       return new Response(
         JSON.stringify({
           status: "online",
-          bot: "ThumbSwap Bot (Cloudflare Serverless)",
+          bot: "Thumbnail Changer Bot (Cloudflare Serverless)",
+          speed: "1-2 seconds",
+          max_size: "Up to 4GB",
           architecture: "Zero-Download Server-Side Pointer Swap",
           uptime: "24/7 Cloudflare Edge",
         }),
@@ -96,25 +97,29 @@ async function handleMessage(message, env) {
   // 1. /start command
   if (text === "/start" || text.startsWith("/start ")) {
     const userName = user.first_name || "there";
-    const welcomeText = `👋 <b>Welcome, ${userName}, to ThumbSwap Bot!</b> 🎬⚡\n\n` +
-      `I can instantly replace the cover / thumbnail of any streaming video ` +
-      `(up to <b>4GB</b>) in 1–5 seconds using Telegram's server-side pointer swap.\n\n` +
-      `<b>📌 How it works:</b>\n` +
-      `1️⃣ <b>Send a Photo:</b> The bot will save it in Cloudflare KV as your new cover.\n` +
-      `2️⃣ <b>Send a Streaming Video:</b> The bot will instantly return your video with the new cover applied!\n\n` +
-      `✨ <b>Features:</b>\n` +
-      `• <b>Zero Download & Zero Re-upload:</b> Instant round-trip (1–5 seconds)\n` +
-      `• <b>100% Quality Retention:</b> Original bitrate, resolution, audio & streaming flags preserved\n` +
-      `• <b>Serverless Cloud:</b> Powered by Cloudflare Edge 24/7 with zero downtime!\n\n` +
+    const welcomeText = `⚡ <b>Welcome to Thumbnail Changer Bot!</b> 🎬\n\n` +
+      `Hey <b>${userName}</b>, I can instantly replace the thumbnail of any streaming video ` +
+      `(up to <b>4GB</b>) in just <b>1–2 seconds</b> with ZERO quality loss!\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n` +
+      `📌 <b>How to Use:</b>\n` +
+      `1️⃣ <b>Step 1:</b> Send any photo to set as your thumbnail (or use /addthumb).\n` +
+      `2️⃣ <b>Step 2:</b> Send your streaming video (up to 4GB).\n` +
+      `3️⃣ <b>Step 3:</b> Receive your video back in <b>1–2 seconds</b> with the new thumbnail applied!\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `✨ <b>Key Highlights:</b>\n` +
+      `• ⚡ <b>Blazing Fast:</b> 1–2 second instant swap\n` +
+      `• 📦 <b>Huge Video Support:</b> Up to 4GB files\n` +
+      `• 💎 <b>100% Quality:</b> Original bitrate, resolution & audio intact\n` +
+      `• 🌐 <b>24/7 Serverless Edge:</b> Always active with zero downtime!\n\n` +
       `<b>🛠️ Available Commands:</b>\n` +
-      `/addthumb - How to set a thumbnail\n` +
-      `/mythumb - View your current thumbnail\n` +
-      `/delthumb - Delete your saved thumbnail\n` +
-      `/setting - View bot & user settings\n` +
-      `/status - View bot system diagnostics\n` +
-      `/restart - Refresh your session\n` +
-      `/help - Detailed user guide\n\n` +
-      `Send your thumbnail photo to get started! 🖼️`;
+      `• /addthumb - Set or update your thumbnail\n` +
+      `• /mythumb - View your currently saved thumbnail\n` +
+      `• /delthumb - Delete your saved thumbnail\n` +
+      `• /setting - View bot & user settings\n` +
+      `• /status - Check live system status & ping\n` +
+      `• /restart - Refresh your bot session\n` +
+      `• /help - Detailed user guide\n\n` +
+      `👇 <i>Send a photo right now to get started!</i> 🖼️`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -126,22 +131,27 @@ async function handleMessage(message, env) {
 
   // 2. /help command
   if (text === "/help" || text.startsWith("/help ")) {
-    const helpText = `📖 <b>ThumbSwap Bot - User Guide & Commands</b>\n\n` +
-      `<b>📌 Step-by-Step Usage:</b>\n` +
+    const helpText = `📖 <b>Thumbnail Changer Bot — User Guide</b>\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n` +
+      `⚡ <b>How It Works:</b>\n` +
+      `This bot uses Telegram's server-side pointer swap. It never downloads or re-encodes your video, ` +
+      `meaning <b>100% original quality</b> and instant <b>1–2s</b> delivery!\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `📌 <b>3 Simple Steps:</b>\n` +
       `1️⃣ <b>Set Thumbnail:</b> Send any photo to the bot (or use /addthumb).\n` +
       `2️⃣ <b>Send Video:</b> Send a streaming video (up to 4GB).\n` +
-      `3️⃣ <b>Done:</b> Receive your video with the new cover in 1–5 seconds!\n\n` +
-      `<b>🛠️ Available Commands:</b>\n` +
-      `• /start - Start the bot & show welcome guide\n` +
-      `• /help - Display this commands list\n` +
-      `• /addthumb - Guide or shortcut to set a thumbnail\n` +
-      `• /mythumb - View your currently active thumbnail\n` +
-      `• /delthumb - Delete your saved thumbnail\n` +
-      `• /setting - View your settings & configuration\n` +
-      `• /status - View bot system diagnostics & stats\n` +
-      `• /restart - Refresh your bot session\n\n` +
-      `<b>👑 Admin Commands:</b>\n` +
-      `• /broadcast (or /brotcast) - Send announcement to all users`;
+      `3️⃣ <b>Done:</b> Receive your video with the new thumbnail in <b>1–2 seconds</b>!\n\n` +
+      `🛠️ <b>User Commands:</b>\n` +
+      `• /start — Start the bot & view welcome guide\n` +
+      `• /addthumb — Set or update your video thumbnail\n` +
+      `• /mythumb — View your currently active thumbnail\n` +
+      `• /delthumb — Delete your saved thumbnail\n` +
+      `• /setting — View your settings & configuration\n` +
+      `• /status — Check live system status & ping\n` +
+      `• /restart — Refresh your bot session\n` +
+      `• /help — Show this commands menu\n\n` +
+      `👑 <b>Admin Commands:</b>\n` +
+      `• /broadcast (or /brotcast) — Send announcement to all users`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -154,12 +164,13 @@ async function handleMessage(message, env) {
   // 3. /restart command
   if (text === "/restart" || text.startsWith("/restart ")) {
     const savedCover = await env.THUMB_KV.get(userId);
-    const restartText = `🔄 <b>Bot Session Refreshed!</b>\n\n` +
-      `Your session has been re-initialized and all systems are operational.\n\n` +
-      `• <b>Thumbnail Status:</b> ${savedCover ? "Active ✅ (Ready)" : "Not Set ❌"}\n` +
-      `• <b>Engine:</b> Cloudflare Workers Serverless Edge (24/7)\n` +
-      `• <b>Status:</b> 🟢 Ready\n\n` +
-      `Send a photo to set your thumbnail or use /help for guidance!`;
+    const restartText = `🔄 <b>Session Refreshed Successfully!</b>\n\n` +
+      `Your bot session has been re-initialized and is running at peak performance.\n\n` +
+      `• <b>Thumbnail:</b> ${savedCover ? "Active ✅ (Ready)" : "Not Set ❌"}\n` +
+      `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
+      `• <b>Edge Network:</b> 🟢 24/7 Online\n` +
+      `• <b>Status:</b> 🟢 Operational\n\n` +
+      `<i>Send a photo or streaming video to continue!</i>`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -173,14 +184,17 @@ async function handleMessage(message, env) {
   // 4. /setting or /settings command
   if (text === "/setting" || text === "/settings" || text.startsWith("/setting ") || text.startsWith("/settings ")) {
     const savedCover = await env.THUMB_KV.get(userId);
-    const settingsText = `⚙️ <b>ThumbSwap Bot Settings & Config:</b>\n\n` +
+    const settingsText = `⚙️ <b>Thumbnail Changer Bot — Settings</b>\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n` +
       `• <b>User ID:</b> <code>${userId}</code>\n` +
-      `• <b>Active Thumbnail:</b> ${savedCover ? "Set ✅ (Ready)" : "Not Set ❌"}\n` +
-      `• <b>Streaming Optimization:</b> Enabled (<code>supports_streaming: true</code>)\n` +
-      `• <b>Caption Preservation:</b> 100% Intact\n` +
-      `• <b>Max File Size:</b> Up to 4GB\n` +
-      `• <b>Engine:</b> Cloudflare Global Edge (Serverless 24/7)\n\n` +
-      `💡 <i>Use /mythumb to view your saved cover or /delthumb to delete it.</i>`;
+      `• <b>Saved Thumbnail:</b> ${savedCover ? "Active ✅ (Ready)" : "Not Set ❌"}\n` +
+      `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
+      `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
+      `• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n` +
+      `• <b>Caption Preservation:</b> 🟢 100% Original Kept\n` +
+      `• <b>Edge Platform:</b> 🌐 Cloudflare Serverless (24/7)\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `💡 <i>Send /mythumb to view your image or /delthumb to remove it.</i>`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -200,19 +214,21 @@ async function handleMessage(message, env) {
       await env.THUMB_KV.put(userId, highestRes.file_id);
       await callTelegram(env.BOT_TOKEN, "sendMessage", {
         chat_id: chatId,
-        text: "✅ <b>Thumbnail Saved from Replied Photo!</b> Send your streaming video now.",
+        text: `✅ <b>Thumbnail Saved from Replied Photo!</b>\n\nNow send your streaming video to apply it in <b>1–2 seconds</b>! 🎬⚡`,
         parse_mode: "HTML",
         reply_to_message_id: message.message_id,
       });
       return;
     }
 
-    const addThumbGuide = `🖼️ <b>Add Custom Video Thumbnail:</b>\n\n` +
-      `Please send a <b>Photo</b> (JPEG/PNG) to set it as your video thumbnail.\n\n` +
-      `💡 <b>Tips for Best Quality:</b>\n` +
-      `• Recommended ratio: <b>16:9</b> (1280×720 or 1920×1080)\n` +
-      `• Send as normal photo (compressed), not as a document.\n` +
-      `• You can also reply to any photo with <code>/addthumb</code> to save it directly!`;
+    const addThumbGuide = `🖼️ <b>Set Custom Video Thumbnail</b>\n\n` +
+      `Please send any <b>Photo</b> (JPEG / PNG) to set it as your video thumbnail.\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n` +
+      `💡 <b>Pro Tips for Best Quality:</b>\n` +
+      `• Recommended Aspect Ratio: <b>16:9</b> (1280×720 or 1920×1080)\n` +
+      `• Send as a standard photo (compressed), not as a document.\n` +
+      `• You can also <b>reply</b> to any photo in chat with <code>/addthumb</code>!\n` +
+      `━━━━━━━━━━━━━━━━━━━━━`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -231,7 +247,7 @@ async function handleMessage(message, env) {
         chat_id: chatId,
         photo: savedCover,
         caption: `📸 <b>Your Active Thumbnail:</b>\n\n` +
-          `This cover is currently saved and will be applied to every streaming video you send!\n\n` +
+          `This thumbnail is saved and will be automatically applied to any streaming video you send in <b>1–2 seconds</b>!\n\n` +
           `🗑️ <i>To remove it, send /delthumb.</i>`,
         parse_mode: "HTML",
         reply_to_message_id: message.message_id,
@@ -258,7 +274,7 @@ async function handleMessage(message, env) {
         chat_id: chatId,
         text: `🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n` +
           `Your saved thumbnail has been removed from Cloudflare storage.\n` +
-          `Videos will now be sent with Telegram's default preview until you set a new one.`,
+          `Incoming videos will now use Telegram's default preview until you set a new one.`,
         parse_mode: "HTML",
         reply_to_message_id: message.message_id,
       });
@@ -360,15 +376,17 @@ async function handleMessage(message, env) {
   if (text === "/status" || text.startsWith("/status ")) {
     const savedCover = await env.THUMB_KV.get(userId);
     const allUsers = await getAllUsers(env);
-    const statusText = `📊 <b>ThumbSwap Bot - System Status:</b>\n\n` +
-      `• <b>Bot State:</b> 🟢 Operational (24/7)\n` +
-      `• <b>Platform:</b> Cloudflare Workers Serverless Edge\n` +
-      `• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n` +
-      `• <b>Max Video Size:</b> Up to 4GB\n` +
+    const statusText = `📊 <b>Thumbnail Changer Bot — System Status</b>\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━\n` +
+      `• <b>Status:</b> 🟢 Operational (24/7 Live)\n` +
+      `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
+      `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
       `• <b>Your User ID:</b> <code>${userId}</code>\n` +
       `• <b>Your Thumbnail:</b> ${savedCover ? "Active ✅" : "Not Set ❌"}\n` +
-      `• <b>Total Registered Users:</b> ${allUsers.length}\n` +
-      `• <b>Edge Latency:</b> ~1ms–5ms`;
+      `• <b>Total Registered Users:</b> 👥 ${allUsers.length}\n` +
+      `• <b>Platform:</b> 🌐 Cloudflare Edge Network\n` +
+      `• <b>Edge Latency:</b> ⚡ ~1ms–5ms\n` +
+      `━━━━━━━━━━━━━━━━━━━━━`;
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
@@ -386,7 +404,7 @@ async function handleMessage(message, env) {
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
-      text: "✅ <b>Thumbnail Saved!</b> Send your streaming video now.",
+      text: `✅ <b>Thumbnail Saved Successfully!</b>\n\nNow send your <b>Streaming Video</b> (up to 4GB) to swap its thumbnail in <b>1–2 seconds</b>! 🎬⚡`,
       parse_mode: "HTML",
       reply_to_message_id: message.message_id,
     });
@@ -411,13 +429,13 @@ async function handleMessage(message, env) {
     return;
   }
 
-  // 12. Streaming Video Received -> Zero-Download Pointer Swap
+  // 12. Streaming Video Received -> Zero-Download Pointer Swap (1-2s)
   if (message.video) {
     const savedCover = await env.THUMB_KV.get(userId);
     if (!savedCover) {
       await callTelegram(env.BOT_TOKEN, "sendMessage", {
         chat_id: chatId,
-        text: "⚠️ <b>Please send a thumbnail photo first before sending a video!</b>\nUse /addthumb or send an image.",
+        text: `⚠️ <b>Thumbnail Required!</b>\n\nPlease send a photo first before sending your video.\nSend any image or use /addthumb to get started.`,
         parse_mode: "HTML",
         reply_to_message_id: message.message_id,
       });
@@ -466,7 +484,7 @@ async function handleMessage(message, env) {
   if (text) {
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
-      text: "ℹ️ Send me a <b>Photo</b> first to save your thumbnail, then send a <b>Streaming Video</b> to instantly apply it!\n\nUse /help to see all available commands.",
+      text: `ℹ️ Send me a <b>Photo</b> first to save your thumbnail, then send a <b>Streaming Video</b> to instantly swap it in <b>1–2 seconds</b>!\n\nUse /help to see all available commands.`,
       parse_mode: "HTML",
     });
   }

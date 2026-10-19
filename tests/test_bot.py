@@ -42,6 +42,7 @@ async def test_start_command_handler():
     message.reply.assert_called_once()
     assert config.BOT_NAME in message.reply.call_args[0][0]
     assert "4GB" in message.reply.call_args[0][0]
+    assert "1–2 seconds" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -57,7 +58,7 @@ async def test_help_command_handler():
     await handle_help(message)
 
     message.reply.assert_called_once()
-    assert "User Guide & Commands" in message.reply.call_args[0][0]
+    assert "User Guide" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -73,7 +74,7 @@ async def test_restart_command_handler():
     await handle_restart(message)
 
     message.reply.assert_called_once()
-    assert "Bot Session Refreshed!" in message.reply.call_args[0][0]
+    assert "Session Refreshed Successfully!" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -89,7 +90,7 @@ async def test_setting_command_handler():
     await handle_setting(message)
 
     message.reply.assert_called_once()
-    assert "Settings & Config" in message.reply.call_args[0][0]
+    assert "Settings" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -106,7 +107,7 @@ async def test_addthumb_command_handler():
     await handle_addthumb(message)
 
     message.reply.assert_called_once()
-    assert "Add Custom Video Thumbnail" in message.reply.call_args[0][0]
+    assert "Set Custom Video Thumbnail" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -232,7 +233,7 @@ async def test_photo_handler():
         # Stored in RAM
         assert mock_storage.get_thumbnail(111) == "large_id_best"
         # Reply message
-        assert "Thumbnail Saved!" in message.reply.call_args[0][0]
+        assert "Thumbnail Saved Successfully!" in message.reply.call_args[0][0]
 
 
 @pytest.mark.asyncio
@@ -266,7 +267,7 @@ async def test_video_handler_no_saved_thumbnail():
         await handle_video(message, mock_bot)
 
         message.reply.assert_called_once()
-        assert "Please send a thumbnail photo first" in message.reply.call_args[0][0]
+        assert "Thumbnail Required!" in message.reply.call_args[0][0]
         mock_bot.send_video.assert_not_called()
 
 

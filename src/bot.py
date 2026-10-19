@@ -1,6 +1,7 @@
 """
-Production-ready, ultra-fast Telegram Video Cover/Thumbnail Changer Bot.
+Production-ready, ultra-fast Telegram Video Thumbnail Changer Bot.
 Zero-Download Server-Side Pointer Swap Architecture using Telegram's modern 'cover' parameter.
+Swaps streaming video thumbnails up to 4GB in 1–2 seconds.
 """
 
 import asyncio
@@ -33,15 +34,15 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     handlers=[logging.StreamHandler(sys.stdout)],
 )
-logger = logging.getLogger("CoverBot")
+logger = logging.getLogger("ThumbnailChangerBot")
 
 # Initialize Dispatcher
 dp = Dispatcher()
 
 # Exact required error message for non-streaming file types
 UNSUPPORTED_MEDIA_REPLY = (
-    "⚠️ <b>Unsupported File Type!</b>\n"
-    "This bot only supports Videos (sent as streaming video).\n"
+    "⚠️ <b>Unsupported File Type!</b>\n\n"
+    "This bot only supports <b>Videos</b> (sent as streaming video).\n"
     "Documents, audio files, stickers, and other formats are not supported."
 )
 
@@ -55,25 +56,29 @@ async def handle_start(message: Message) -> None:
         storage.register_user(user.id)
 
     welcome_text = (
-        f"👋 <b>Welcome, {user_name}, to {config.BOT_NAME}!</b> 🎬⚡\n\n"
-        "I can instantly replace the cover / thumbnail of any streaming video "
-        "(up to <b>4GB</b>) in 1–5 seconds using Telegram's server-side pointer swap.\n\n"
-        "<b>📌 How it works:</b>\n"
-        "1️⃣ <b>Send a Photo:</b> The bot will save it in RAM as your new cover.\n"
-        "2️⃣ <b>Send a Streaming Video:</b> The bot will instantly return your video with the new cover applied!\n\n"
-        "✨ <b>Features:</b>\n"
-        "• <b>Zero Download & Zero Re-upload:</b> Instant round-trip (1–5 seconds)\n"
-        "• <b>100% Quality Retention:</b> Original bitrate, resolution, audio & streaming flags preserved\n"
-        "• <b>Caption Preservation:</b> Original caption and formatting are kept intact\n\n"
+        f"⚡ <b>Welcome to {config.BOT_NAME}!</b> 🎬\n\n"
+        f"Hey <b>{user_name}</b>, I can instantly replace the thumbnail of any streaming video "
+        "(up to <b>4GB</b>) in just <b>1–2 seconds</b> with ZERO quality loss!\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "📌 <b>How to Use:</b>\n"
+        "1️⃣ <b>Step 1:</b> Send any photo to set as your thumbnail (or use /addthumb).\n"
+        "2️⃣ <b>Step 2:</b> Send your streaming video (up to 4GB).\n"
+        "3️⃣ <b>Step 3:</b> Receive your video back in <b>1–2 seconds</b> with the new thumbnail applied!\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "✨ <b>Key Highlights:</b>\n"
+        "• ⚡ <b>Blazing Fast:</b> 1–2 second instant swap\n"
+        "• 📦 <b>Huge Video Support:</b> Up to 4GB files\n"
+        "• 💎 <b>100% Quality:</b> Original bitrate, resolution & audio intact\n"
+        "• 🌐 <b>24/7 Uptime:</b> Always active with zero downtime!\n\n"
         "<b>🛠️ Available Commands:</b>\n"
-        "/addthumb - How to set a thumbnail\n"
-        "/mythumb - View your current thumbnail\n"
-        "/delthumb - Delete your saved thumbnail\n"
-        "/setting - View bot & user settings\n"
-        "/status - View bot system diagnostics\n"
-        "/restart - Refresh your session\n"
-        "/help - Detailed user guide\n\n"
-        "Send your thumbnail photo to get started! 🖼️"
+        "• /addthumb - Set or update your thumbnail\n"
+        "• /mythumb - View your currently saved thumbnail\n"
+        "• /delthumb - Delete your saved thumbnail\n"
+        "• /setting - View bot & user settings\n"
+        "• /status - Check live system status & ping\n"
+        "• /restart - Refresh your bot session\n"
+        "• /help - Detailed user guide\n\n"
+        "👇 <i>Send a photo right now to get started!</i> 🖼️"
     )
     await message.reply(welcome_text, parse_mode="HTML")
 
@@ -86,22 +91,27 @@ async def handle_help(message: Message) -> None:
         storage.register_user(user.id)
 
     help_text = (
-        f"📖 <b>{config.BOT_NAME} - User Guide & Commands</b>\n\n"
-        "<b>📌 Step-by-Step Usage:</b>\n"
+        f"📖 <b>{config.BOT_NAME} — User Guide</b>\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "⚡ <b>How It Works:</b>\n"
+        "This bot uses Telegram's server-side pointer swap. It never downloads or re-encodes your video, "
+        "meaning <b>100% original quality</b> and instant <b>1–2s</b> delivery!\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "📌 <b>3 Simple Steps:</b>\n"
         "1️⃣ <b>Set Thumbnail:</b> Send any photo to the bot (or use /addthumb).\n"
         "2️⃣ <b>Send Video:</b> Send a streaming video (up to 4GB).\n"
-        "3️⃣ <b>Done:</b> Receive your video with the new cover in 1–5 seconds!\n\n"
-        "<b>🛠️ Available Commands:</b>\n"
-        "• /start - Start the bot & show welcome guide\n"
-        "• /help - Display this commands list\n"
-        "• /addthumb - Guide or shortcut to set a thumbnail\n"
-        "• /mythumb - View your currently active thumbnail\n"
-        "• /delthumb - Delete your saved thumbnail\n"
-        "• /setting - View your settings & configuration\n"
-        "• /status - View bot system diagnostics & stats\n"
-        "• /restart - Refresh your bot session\n\n"
-        "<b>👑 Admin Commands:</b>\n"
-        "• /broadcast (or /brotcast) - Send announcement to all users"
+        "3️⃣ <b>Done:</b> Receive your video with the new thumbnail in <b>1–2 seconds</b>!\n\n"
+        "🛠️ <b>User Commands:</b>\n"
+        "• /start — Start the bot & view welcome guide\n"
+        "• /addthumb — Set or update your video thumbnail\n"
+        "• /mythumb — View your currently active thumbnail\n"
+        "• /delthumb — Delete your saved thumbnail\n"
+        "• /setting — View your settings & configuration\n"
+        "• /status — Check live system status & ping\n"
+        "• /restart — Refresh your bot session\n"
+        "• /help — Show this commands menu\n\n"
+        "👑 <b>Admin Commands:</b>\n"
+        "• /broadcast (or /brotcast) — Send announcement to all users"
     )
     await message.reply(help_text, parse_mode="HTML")
 
@@ -115,12 +125,12 @@ async def handle_restart(message: Message) -> None:
     saved_cover = storage.get_thumbnail(user_id)
 
     restart_text = (
-        "🔄 <b>Bot Session Refreshed!</b>\n\n"
-        "Your session has been re-initialized and all systems are operational.\n\n"
-        f"• <b>Thumbnail Status:</b> {'Active ✅ (Ready)' if saved_cover else 'Not Set ❌'}\n"
-        "• <b>Engine:</b> Linux VPS / Python aiogram 3.x\n"
-        "• <b>Status:</b> 🟢 Ready\n\n"
-        "Send a photo to set your thumbnail or use /help for guidance!"
+        "🔄 <b>Session Refreshed Successfully!</b>\n\n"
+        "Your bot session has been re-initialized and is running at peak performance.\n\n"
+        f"• <b>Thumbnail:</b> {'Active ✅ (Ready)' if saved_cover else 'Not Set ❌'}\n"
+        "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
+        "• <b>Status:</b> 🟢 Operational\n\n"
+        "<i>Send a photo or streaming video to continue!</i>"
     )
     await message.reply(restart_text, parse_mode="HTML")
 
@@ -134,14 +144,17 @@ async def handle_setting(message: Message) -> None:
     saved_cover = storage.get_thumbnail(user_id)
 
     settings_text = (
-        f"⚙️ <b>{config.BOT_NAME} Settings & Config:</b>\n\n"
+        f"⚙️ <b>{config.BOT_NAME} — Settings</b>\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
         f"• <b>User ID:</b> <code>{user_id}</code>\n"
-        f"• <b>Active Thumbnail:</b> {'Set ✅ (Ready)' if saved_cover else 'Not Set ❌'}\n"
-        "• <b>Streaming Optimization:</b> Enabled (<code>supports_streaming: true</code>)\n"
-        "• <b>Caption Preservation:</b> 100% Intact\n"
-        "• <b>Max File Size:</b> Up to 4GB\n"
-        "• <b>Engine:</b> Linux VPS / Python aiogram 3.x\n\n"
-        "💡 <i>Use /mythumb to view your saved cover or /delthumb to delete it.</i>"
+        f"• <b>Saved Thumbnail:</b> {'Active ✅ (Ready)' if saved_cover else 'Not Set ❌'}\n"
+        "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
+        "• <b>Max File Size:</b> 📦 Up to 4GB\n"
+        "• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n"
+        "• <b>Caption Preservation:</b> 🟢 100% Original Kept\n"
+        "• <b>Processing:</b> ⚡ Zero-Download Pointer Swap\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "💡 <i>Send /mythumb to view your image or /delthumb to remove it.</i>"
     )
     await message.reply(settings_text, parse_mode="HTML")
 
@@ -158,18 +171,21 @@ async def handle_addthumb(message: Message) -> None:
         highest_res = message.reply_to_message.photo[-1]
         storage.set_thumbnail(user_id, highest_res.file_id)
         await message.reply(
-            "✅ <b>Thumbnail Saved from Replied Photo!</b> Send your streaming video now.",
+            "✅ <b>Thumbnail Saved from Replied Photo!</b>\n\n"
+            "Now send your streaming video to apply it in <b>1–2 seconds</b>! 🎬⚡",
             parse_mode="HTML",
         )
         return
 
     add_thumb_guide = (
-        "🖼️ <b>Add Custom Video Thumbnail:</b>\n\n"
-        "Please send a <b>Photo</b> (JPEG/PNG) to set it as your video thumbnail.\n\n"
-        "💡 <b>Tips for Best Quality:</b>\n"
-        "• Recommended ratio: <b>16:9</b> (1280×720 or 1920×1080)\n"
-        "• Send as normal photo (compressed), not as a document.\n"
-        "• You can also reply to any photo with <code>/addthumb</code> to save it directly!"
+        "🖼️ <b>Set Custom Video Thumbnail</b>\n\n"
+        "Please send any <b>Photo</b> (JPEG / PNG) to set it as your video thumbnail.\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "💡 <b>Pro Tips for Best Quality:</b>\n"
+        "• Recommended Aspect Ratio: <b>16:9</b> (1280×720 or 1920×1080)\n"
+        "• Send as a standard photo (compressed), not as a document.\n"
+        "• You can also <b>reply</b> to any photo in chat with <code>/addthumb</code>!\n"
+        "━━━━━━━━━━━━━━━━━━━━━"
     )
     await message.reply(add_thumb_guide, parse_mode="HTML")
 
@@ -185,7 +201,7 @@ async def handle_mythumb(message: Message, bot: Bot) -> None:
     if saved_file_id:
         caption = (
             "📸 <b>Your Active Thumbnail:</b>\n\n"
-            "This cover is currently saved and will be applied to every streaming video you send!\n\n"
+            "This thumbnail is saved and will be automatically applied to any streaming video you send in <b>1–2 seconds</b>!\n\n"
             "🗑️ <i>To remove it, send /delthumb.</i>"
         )
         await bot.send_photo(
@@ -215,7 +231,7 @@ async def handle_delthumb(message: Message) -> None:
         await message.reply(
             "🗑️ <b>Thumbnail Deleted Successfully!</b>\n\n"
             "Your saved thumbnail has been removed from storage.\n"
-            "Videos will now be sent with Telegram's default preview until you set a new one.",
+            "Incoming videos will now use Telegram's default preview until you set a new one.",
             parse_mode="HTML",
         )
     else:
@@ -235,15 +251,16 @@ async def handle_status(message: Message) -> None:
     total_users = max(storage.total_users(), 1)
 
     status_text = (
-        f"📊 <b>{config.BOT_NAME} - System Status:</b>\n\n"
-        "• <b>Bot State:</b> 🟢 Operational\n"
-        "• <b>Platform:</b> Linux VPS / Python aiogram 3.x\n"
-        "• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n"
-        "• <b>Max Video Size:</b> Up to 4GB\n"
+        f"📊 <b>{config.BOT_NAME} — System Status</b>\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━\n"
+        "• <b>Status:</b> 🟢 Operational (24/7 Live)\n"
+        "• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n"
+        "• <b>Max File Size:</b> 📦 Up to 4GB\n"
         f"• <b>Your User ID:</b> <code>{user_id}</code>\n"
         f"• <b>Your Thumbnail:</b> {'Active ✅' if saved_cover else 'Not Set ❌'}\n"
-        f"• <b>Total Registered Users:</b> {total_users}\n"
-        "• <b>Latency:</b> ~1ms–5ms"
+        f"• <b>Total Registered Users:</b> 👥 {total_users}\n"
+        "• <b>Latency:</b> ⚡ ~1ms–5ms\n"
+        "━━━━━━━━━━━━━━━━━━━━━"
     )
     await message.reply(status_text, parse_mode="HTML")
 
@@ -333,7 +350,11 @@ async def handle_photo(message: Message) -> None:
         highest_res_photo.height,
     )
 
-    await message.reply("✅ <b>Thumbnail Saved!</b> Send your streaming video now.", parse_mode="HTML")
+    await message.reply(
+        "✅ <b>Thumbnail Saved Successfully!</b>\n\n"
+        "Now send your <b>Streaming Video</b> (up to 4GB) to swap its thumbnail in <b>1–2 seconds</b>! 🎬⚡",
+        parse_mode="HTML",
+    )
 
 
 @dp.message(
@@ -358,7 +379,7 @@ async def handle_unsupported_media(message: Message) -> None:
 @dp.message(F.video, F.chat.type == ChatType.PRIVATE)
 async def handle_video(message: Message, bot: Bot) -> None:
     """
-    Step 3 — Instant 1–5s Cover Swap on Streaming Video:
+    Step 3 — Instant 1–2s Thumbnail Swap on Streaming Video:
     When a user sends a streaming video (message.video), check if they have a saved
     photo file_id in RAM. If not, prompt them to send a photo first.
     If a saved photo exists, immediately call Telegram's sendVideo endpoint passing
@@ -371,8 +392,9 @@ async def handle_video(message: Message, bot: Bot) -> None:
 
     if not saved_cover_file_id:
         await message.reply(
-            "⚠️ <b>Please send a thumbnail photo first before sending a video!</b>\n"
-            "Use /addthumb or send an image.",
+            "⚠️ <b>Thumbnail Required!</b>\n\n"
+            "Please send a photo first before sending your video.\n"
+            "Send any image or use /addthumb to get started.",
             parse_mode="HTML",
         )
         return
@@ -425,7 +447,7 @@ async def handle_video(message: Message, bot: Bot) -> None:
         await bot.send_video(**send_video_kwargs)
         elapsed = time.monotonic() - start_time
         logger.info(
-            "Successfully swapped cover for user %s in %.2f seconds (Zero bytes downloaded/re-uploaded)",
+            "Successfully swapped thumbnail for user %s in %.2f seconds (Zero bytes downloaded/re-uploaded)",
             user_id,
             elapsed,
         )
@@ -448,7 +470,7 @@ async def handle_other_text(message: Message) -> None:
     """Handle general text messages with a friendly prompt."""
     await message.reply(
         "ℹ️ Send me a <b>Photo</b> first to save your thumbnail, "
-        "then send a <b>Streaming Video</b> to instantly apply it!\n\n"
+        "then send a <b>Streaming Video</b> to instantly swap it in <b>1–2 seconds</b>!\n\n"
         "Use /help to see all available commands.",
         parse_mode="HTML",
     )

@@ -1,12 +1,13 @@
-# ThumbSwap Bot 🎬⚡
+# Thumbnail Changer Bot 🎬⚡
 
 [![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers%20Serverless-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![aiogram 3.x](https://img.shields.io/badge/aiogram-3.x-2CA5E0?logo=telegram&logoColor=white)](https://docs.aiogram.dev/)
 [![Max File Size](https://img.shields.io/badge/Max%20Video%20Size-Up%20to%204GB-brightgreen.svg)](#-zero-download-server-side-pointer-swap-architecture)
+[![Swap Speed](https://img.shields.io/badge/Speed-1--2%20Seconds-blue.svg)](#-zero-download-server-side-pointer-swap-architecture)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A production-ready, ultra-fast Telegram Video Cover/Thumbnail Changer Bot built on a **Zero-Download Server-Side Pointer Swap Architecture**. Replaces video thumbnails in **1 to 5 seconds** for streaming videos up to **4GB** without downloading, re-encoding, or re-uploading a single byte.
+A production-ready, ultra-fast Telegram Video Thumbnail Changer Bot built on a **Zero-Download Server-Side Pointer Swap Architecture**. Replaces video thumbnails in **1 to 2 seconds** for streaming videos up to **4GB** without downloading, re-encoding, or re-uploading a single byte.
 
 Available in both **Dual Deployment Architectures**:
 1. 🌐 **100% Serverless Cloud:** Deploy on **Cloudflare Workers** with **Cloudflare KV** (Free 24/7, 0ms cold starts, no VPS required).
@@ -24,7 +25,7 @@ Traditional Telegram thumbnail changer bots download the incoming video to disk,
 4. **Extreme Latency:** Downloading and uploading 1GB to 4GB files takes several minutes to hours.
 
 ### The Modern Solution (Method 5)
-ThumbSwap Bot leverages Telegram's modern `cover` parameter in the `sendVideo` Bot API endpoint:
+Thumbnail Changer Bot leverages Telegram's modern `cover` parameter in the `sendVideo` Bot API endpoint:
 - **Streaming Video Metadata Delivery:** When a user sends any streaming video (up to 4GB), Telegram's update delivers its native `video.file_id`.
 - **In-Memory Thumbnail Registration:** When a user sends a photo, its highest-resolution `photo.file_id` is cached instantly in Cloudflare KV or RAM.
 - **Server-Side Pointer Binding:** When the user sends a streaming video, the bot sends an asynchronous JSON HTTP payload back to Telegram DC:
@@ -36,12 +37,13 @@ ThumbSwap Bot leverages Telegram's modern `cover` parameter in the `sendVideo` B
     "supports_streaming": true
   }
   ```
-- **100% Quality & Stream Metadata Preservation:** Telegram's Data Centers link the new cover pointer directly to the existing video asset. Zero bytes are downloaded to or uploaded from the server. The round-trip completes in **0.5 to 2 seconds**.
+- **100% Quality & Stream Metadata Preservation:** Telegram's Data Centers link the new cover pointer directly to the existing video asset. Zero bytes are downloaded to or uploaded from the server. The round-trip completes in **1 to 2 seconds**.
 
 ```
-  +---------+                 +-------------------+                 +-------------------+
-  |  User   |                 |   ThumbSwap Bot   |                 |  Telegram DC      |
-  +---------+                 +-------------------+                 +-------------------+
+  +---------+                 +------------------------+                 +-------------------+
+  |  User   |                 | Thumbnail Changer Bot  |                 |  Telegram DC      |
+  +---------+                 +------------------------+                 +-------------------+
+
        |                                |                                     |
        | 1. Send Photo                  |                                     |
        |------------------------------->| (Extract photo.file_id -> KV/RAM)   |
