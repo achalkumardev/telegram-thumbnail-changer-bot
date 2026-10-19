@@ -38,7 +38,7 @@ export default {
           status: "online",
           bot: "Thumbnail Changer Bot",
           speed: "1-2 seconds",
-          max_size: "Up to 4GB",
+          max_size: "Any Size (Full Telegram 4GB Support)",
           quality: "Lossless (Zero-Download Pointer Swap)",
         }),
         {
@@ -137,16 +137,16 @@ async function sendWelcomeMessage(chatId, user, env, messageId = null) {
   const userName = user.first_name || "there";
   const welcomeText = `👋 <b>Hello, ${userName}! Welcome to Thumbnail Changer Bot</b> 🎬⚡\n\n` +
     `The premier Telegram tool to swap or attach custom thumbnails to streaming videos ` +
-    `(up to <b>4GB</b>) in just <b>1–2 seconds</b> with ZERO quality loss!\n\n` +
+    `of <b>Any Size</b> (Full Telegram 4GB Support) in just <b>1–2 seconds</b> with ZERO quality loss!\n\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `🚀 <b>How It Works:</b>\n` +
     `1️⃣ <b>Send a Photo:</b> Set your high-resolution thumbnail.\n` +
-    `2️⃣ <b>Send a Video:</b> Up to 4GB (sent as streaming video).\n` +
+    `2️⃣ <b>Send a Video:</b> Any video file (Full Telegram 4GB Support).\n` +
     `3️⃣ <b>Instant Delivery:</b> Receive your video back in <b>1–2 seconds</b>!\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
     `💎 <b>Why Creators Love This Bot:</b>\n` +
     `• ⚡ <b>Instant Delivery:</b> 1–2 second direct server swap\n` +
-    `• 📦 <b>Up to 4GB:</b> Handles full-length movies, anime & shows\n` +
+    `• 📦 <b>Any Size Supported:</b> Full Telegram 4GB capacity for movies & shows\n` +
     `• 🛡️ <b>Lossless Quality:</b> Original bitrate, resolution & audio intact\n` +
     `• 🎬 <b>Fast Streaming:</b> Native Telegram streaming ready\n\n` +
     `👇 <i>Tap an option below or send a photo directly to begin:</i>`;
@@ -182,7 +182,7 @@ async function handleCallbackQuery(query, env) {
       const thumbText = `📸 <b>Your Active Thumbnail:</b>\n\n` +
         `• <b>Status:</b> Active & Set ✅\n` +
         `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
-        `• <b>Target:</b> Streaming Videos up to 4GB\n` +
+        `• <b>Target:</b> Streaming Videos of Any Size (Full 4GB Support)\n` +
         `• <b>Storage:</b> Saved to Profile\n\n` +
         `💡 <i>This thumbnail will be automatically attached to any video you send. Tap 'View Full Photo' below if you want the original image sent, or send any new photo to replace it.</i>`;
 
@@ -232,7 +232,7 @@ async function handleCallbackQuery(query, env) {
       `• <b>User ID:</b> <code>${userId}</code>\n` +
       `• <b>Saved Thumbnail:</b> ${savedCover ? "Active ✅ (Ready)" : "Not Set ❌"}\n` +
       `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
-      `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
+      `• <b>File Size:</b> 📦 Any Size (Full Telegram 4GB Support)\n` +
       `• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n` +
       `• <b>Caption Preservation:</b> 🟢 100% Original Kept\n` +
       `• <b>Engine:</b> ⚡ Instant Server Pointer Swap\n` +
@@ -255,7 +255,7 @@ async function handleCallbackQuery(query, env) {
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• <b>System Health:</b> 🟢 Operational & Fast\n` +
       `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
-      `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
+      `• <b>File Size:</b> 📦 Any Size (Full Telegram 4GB Support)\n` +
       `• <b>Your User ID:</b> <code>${userId}</code>\n` +
       `• <b>Your Thumbnail:</b> ${savedCover ? "Active ✅" : "Not Set ❌"}\n` +
       `• <b>Total Users:</b> 👥 ${allUsers.length}\n` +
@@ -277,7 +277,7 @@ async function handleCallbackQuery(query, env) {
       `• <b>Bot Name:</b> Thumbnail Changer Bot\n` +
       `• <b>Version:</b> 2.0.0 (Production)\n` +
       `• <b>Technology:</b> Server-Side Video Pointer Swap\n` +
-      `• <b>Max File Size:</b> Up to 4GB\n` +
+      `• <b>File Size:</b> Any Size (Full Telegram 4GB Support)\n` +
       `• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n` +
       `• <b>Quality:</b> 💎 100% Lossless\n` +
       `• <b>Developer:</b> @achalkumardev\n` +
@@ -298,7 +298,7 @@ async function handleCallbackQuery(query, env) {
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `🎉 <b>What's New in v2.0:</b>\n` +
       `• ⚡ <b>Blazing 1–2s Swap:</b> Instant cover update without re-uploading\n` +
-      `• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n` +
+      `• 📦 <b>Any Size (4GB Max):</b> Handles full movies, anime & shows\n` +
       `• 🔘 <b>In-Place Navigation:</b> Smooth button clicks without chat clutter\n` +
       `• 🛡️ <b>Lossless Quality:</b> Original resolution & bitrate 100% preserved\n` +
       `• 💾 <b>Saved Thumbnail:</b> Active cover remembered automatically\n` +
@@ -323,7 +323,7 @@ async function handleCallbackQuery(query, env) {
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
       `📌 <b>3 Simple Steps:</b>\n` +
       `1️⃣ <b>Set Thumbnail:</b> Send any photo to the bot (or use /addthumb).\n` +
-      `2️⃣ <b>Send Video:</b> Send a streaming video (up to 4GB).\n` +
+      `2️⃣ <b>Send Video:</b> Send a streaming video of Any Size (Full 4GB Support).\n` +
       `3️⃣ <b>Done:</b> Receive your video with the new thumbnail in <b>1–2 seconds</b>!\n\n` +
       `🛠️ <b>User Commands:</b>\n` +
       `• /start — Start the bot & view welcome guide\n` +
@@ -401,7 +401,7 @@ async function handleMessage(message, env) {
       `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
       `📌 <b>3 Simple Steps:</b>\n` +
       `1️⃣ <b>Set Thumbnail:</b> Send any photo to the bot (or use /addthumb).\n` +
-      `2️⃣ <b>Send Video:</b> Send a streaming video (up to 4GB).\n` +
+      `2️⃣ <b>Send Video:</b> Send a streaming video of Any Size (Full 4GB Support).\n` +
       `3️⃣ <b>Done:</b> Receive your video with the new thumbnail in <b>1–2 seconds</b>!\n\n` +
       `🛠️ <b>User Commands:</b>\n` +
       `• /start — Start the bot & view welcome guide\n` +
@@ -435,7 +435,7 @@ async function handleMessage(message, env) {
       `• <b>Bot Name:</b> Thumbnail Changer Bot\n` +
       `• <b>Version:</b> 2.0.0 (Production)\n` +
       `• <b>Technology:</b> Server-Side Video Pointer Swap\n` +
-      `• <b>Max File Size:</b> Up to 4GB\n` +
+      `• <b>File Size:</b> Any Size (Full Telegram 4GB Support)\n` +
       `• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n` +
       `• <b>Quality:</b> 💎 100% Lossless\n` +
       `• <b>Developer:</b> @achalkumardev\n` +
@@ -463,7 +463,7 @@ async function handleMessage(message, env) {
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `🎉 <b>What's New in v2.0:</b>\n` +
       `• ⚡ <b>Blazing 1–2s Swap:</b> Instant cover update without re-uploading\n` +
-      `• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n` +
+      `• 📦 <b>Any Size (4GB Max):</b> Handles full movies, anime & shows\n` +
       `• 🔘 <b>In-Place Navigation:</b> Smooth button clicks without chat clutter\n` +
       `• 🛡️ <b>Lossless Quality:</b> Original resolution & bitrate 100% preserved\n` +
       `• 💾 <b>Saved Thumbnail:</b> Active cover remembered automatically\n` +
@@ -513,7 +513,7 @@ async function handleMessage(message, env) {
       `• <b>User ID:</b> <code>${userId}</code>\n` +
       `• <b>Saved Thumbnail:</b> ${savedCover ? "Active ✅ (Ready)" : "Not Set ❌"}\n` +
       `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
-      `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
+      `• <b>File Size:</b> 📦 Any Size (Full Telegram 4GB Support)\n` +
       `• <b>Streaming Mode:</b> 🟢 Enabled (<code>supports_streaming: true</code>)\n` +
       `• <b>Caption Preservation:</b> 🟢 100% Original Kept\n` +
       `• <b>Engine:</b> ⚡ Instant Server Pointer Swap\n` +
@@ -741,7 +741,7 @@ async function handleMessage(message, env) {
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• <b>System Health:</b> 🟢 Operational & Fast\n` +
       `• <b>Swap Speed:</b> ⚡ 1–2 Seconds\n` +
-      `• <b>Max File Size:</b> 📦 Up to 4GB\n` +
+      `• <b>File Size:</b> 📦 Any Size (Full Telegram 4GB Support)\n` +
       `• <b>Your User ID:</b> <code>${userId}</code>\n` +
       `• <b>Your Thumbnail:</b> ${savedCover ? "Active ✅" : "Not Set ❌"}\n` +
       `• <b>Total Users:</b> 👥 ${allUsers.length}\n` +
@@ -769,7 +769,7 @@ async function handleMessage(message, env) {
 
     await callTelegram(env.BOT_TOKEN, "sendMessage", {
       chat_id: chatId,
-      text: `✅ <b>Thumbnail Saved Successfully!</b>\n\nNow send your <b>Streaming Video</b> (up to 4GB) to swap its thumbnail in <b>1–2 seconds</b>! 🎬⚡`,
+      text: `✅ <b>Thumbnail Saved Successfully!</b>\n\nNow send your <b>Streaming Video</b> of Any Size (Full 4GB Support) to swap its thumbnail in <b>1–2 seconds</b>! 🎬⚡`,
       parse_mode: "HTML",
       reply_to_message_id: message.message_id,
       reply_markup: {
