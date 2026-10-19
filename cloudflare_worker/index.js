@@ -12,15 +12,19 @@ const UNSUPPORTED_MEDIA_REPLY = `⚠️ <b>Unsupported File Type!</b>\n\n` +
 const MAIN_KEYBOARD = {
   inline_keyboard: [
     [
+      { text: "📖 Help", callback_data: "cmd_help" },
+      { text: "ℹ️ About", callback_data: "cmd_about" }
+    ],
+    [
+      { text: "⚙️ Settings", callback_data: "cmd_setting" },
+      { text: "📢 Updates", callback_data: "cmd_updates" }
+    ],
+    [
       { text: "🖼️ My Thumbnail", callback_data: "cmd_mythumb" },
-      { text: "⚙️ Settings", callback_data: "cmd_setting" }
+      { text: "🗑️ Del Thumbnail", callback_data: "cmd_delthumb" }
     ],
     [
-      { text: "📊 Bot Status", callback_data: "cmd_status" },
-      { text: "📖 Help Guide", callback_data: "cmd_help" }
-    ],
-    [
-      { text: "🗑️ Delete Thumbnail", callback_data: "cmd_delthumb" }
+      { text: "📊 Bot Status", callback_data: "cmd_status" }
     ]
   ]
 };
@@ -243,6 +247,60 @@ async function handleCallbackQuery(query, env) {
     return;
   }
 
+  if (data === "cmd_about") {
+    const aboutText = `ℹ️ <b>About Thumbnail Changer Bot</b> 🎬⚡\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `• <b>Bot Name:</b> Thumbnail Changer Bot\n` +
+      `• <b>Version:</b> 2.0.0 (Production Serverless)\n` +
+      `• <b>Hosting:</b> Cloudflare Workers Global Edge\n` +
+      `• <b>Database:</b> Cloudflare KV (Permanent)\n` +
+      `• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n` +
+      `• <b>Max File Size:</b> Up to 4GB\n` +
+      `• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n` +
+      `• <b>Developer:</b> @achalkumardev\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: aboutText,
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "📢 Updates", callback_data: "cmd_updates" }, { text: "⚙️ Settings", callback_data: "cmd_setting" }],
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
+      }
+    });
+    return;
+  }
+
+  if (data === "cmd_updates") {
+    const updatesText = `📢 <b>Thumbnail Changer Bot — Updates & Changelog</b>\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `🎉 <b>What's New in v2.0:</b>\n` +
+      `• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n` +
+      `• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n` +
+      `• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n` +
+      `• 🔘 <b>Interactive Inline UI:</b> Full touch button navigation\n` +
+      `• 💾 <b>Persistent KV Database:</b> Thumbnails saved permanently\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🔔 <i>Stay tuned for more upcoming updates & features!</i>`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: updatesText,
+      parse_mode: "HTML",
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "ℹ️ About Bot", callback_data: "cmd_about" }, { text: "📖 Help", callback_data: "cmd_help" }],
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
+      }
+    });
+    return;
+  }
+
   if (data === "cmd_help") {
     const helpText = `📖 <b>Thumbnail Changer Bot — User Guide</b>\n\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -361,6 +419,64 @@ async function handleMessage(message, env) {
       parse_mode: "HTML",
       reply_markup: {
         inline_keyboard: [
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
+      }
+    });
+    return;
+  }
+
+  // /about command
+  if (text === "/about" || text.startsWith("/about ")) {
+    const aboutText = `ℹ️ <b>About Thumbnail Changer Bot</b> 🎬⚡\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `• <b>Bot Name:</b> Thumbnail Changer Bot\n` +
+      `• <b>Version:</b> 2.0.0 (Production Serverless)\n` +
+      `• <b>Hosting:</b> Cloudflare Workers Global Edge\n` +
+      `• <b>Database:</b> Cloudflare KV (Permanent)\n` +
+      `• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n` +
+      `• <b>Max File Size:</b> Up to 4GB\n` +
+      `• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n` +
+      `• <b>Developer:</b> @achalkumardev\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: aboutText,
+      parse_mode: "HTML",
+      reply_to_message_id: message.message_id,
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "📢 Updates", callback_data: "cmd_updates" }, { text: "⚙️ Settings", callback_data: "cmd_setting" }],
+          [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
+        ]
+      }
+    });
+    return;
+  }
+
+  // /updates command
+  if (text === "/updates" || text.startsWith("/updates ")) {
+    const updatesText = `📢 <b>Thumbnail Changer Bot — Updates & Changelog</b>\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n` +
+      `🎉 <b>What's New in v2.0:</b>\n` +
+      `• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n` +
+      `• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n` +
+      `• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n` +
+      `• 🔘 <b>Interactive Inline UI:</b> Full touch button navigation\n` +
+      `• 💾 <b>Persistent KV Database:</b> Thumbnails saved permanently\n` +
+      `━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+      `🔔 <i>Stay tuned for more upcoming updates & features!</i>`;
+
+    await callTelegram(env.BOT_TOKEN, "sendMessage", {
+      chat_id: chatId,
+      text: updatesText,
+      parse_mode: "HTML",
+      reply_to_message_id: message.message_id,
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "ℹ️ About Bot", callback_data: "cmd_about" }, { text: "📖 Help", callback_data: "cmd_help" }],
           [{ text: "⬅️ Back to Menu", callback_data: "cmd_start" }]
         ]
       }

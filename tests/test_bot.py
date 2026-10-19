@@ -10,6 +10,7 @@ from aiogram.types import Chat, Message, PhotoSize, User, Video, Document, Messa
 
 import config
 from bot import (
+    handle_about,
     handle_addthumb,
     handle_broadcast,
     handle_delthumb,
@@ -21,6 +22,7 @@ from bot import (
     handle_start,
     handle_status,
     handle_unsupported_media,
+    handle_updates,
     handle_video,
     UNSUPPORTED_MEDIA_REPLY,
 )
@@ -91,6 +93,39 @@ async def test_setting_command_handler():
 
     message.reply.assert_called_once()
     assert "Settings" in message.reply.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_about_command_handler():
+    """Verify /about displays bot info."""
+    user = User(id=777, is_bot=False, first_name="AboutTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply = AsyncMock()
+
+    await handle_about(message)
+
+    message.reply.assert_called_once()
+    assert "About" in message.reply.call_args[0][0]
+
+
+@pytest.mark.asyncio
+async def test_updates_command_handler():
+    """Verify /updates displays changelog."""
+    user = User(id=777, is_bot=False, first_name="UpdatesTester")
+    chat = Chat(id=777, type="private")
+    message = MagicMock(spec=Message)
+    message.from_user = user
+    message.chat = chat
+    message.reply = AsyncMock()
+
+    await handle_updates(message)
+
+    message.reply.assert_called_once()
+    assert "Updates & Changelog" in message.reply.call_args[0][0]
+
 
 
 @pytest.mark.asyncio

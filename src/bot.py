@@ -54,15 +54,19 @@ UNSUPPORTED_MEDIA_REPLY = (
 MAIN_KEYBOARD = InlineKeyboardMarkup(
     inline_keyboard=[
         [
-            InlineKeyboardButton(text="🖼️ My Thumbnail", callback_data="cmd_mythumb"),
+            InlineKeyboardButton(text="📖 Help", callback_data="cmd_help"),
+            InlineKeyboardButton(text="ℹ️ About", callback_data="cmd_about"),
+        ],
+        [
             InlineKeyboardButton(text="⚙️ Settings", callback_data="cmd_setting"),
+            InlineKeyboardButton(text="📢 Updates", callback_data="cmd_updates"),
+        ],
+        [
+            InlineKeyboardButton(text="🖼️ My Thumbnail", callback_data="cmd_mythumb"),
+            InlineKeyboardButton(text="🗑️ Del Thumbnail", callback_data="cmd_delthumb"),
         ],
         [
             InlineKeyboardButton(text="📊 Bot Status", callback_data="cmd_status"),
-            InlineKeyboardButton(text="📖 Help Guide", callback_data="cmd_help"),
-        ],
-        [
-            InlineKeyboardButton(text="🗑️ Delete Thumbnail", callback_data="cmd_delthumb"),
         ],
     ]
 )
@@ -124,11 +128,67 @@ async def handle_help(message: Message) -> None:
         "• /setting — View your settings & configuration\n"
         "• /status — Check live system status & ping\n"
         "• /restart — Refresh your bot session\n"
+        "• /about — Information about the bot\n"
+        "• /updates — Latest features & changelog\n"
         "• /help — Show this commands menu\n\n"
         "👑 <b>Admin Commands:</b>\n"
         "• /broadcast (or /brotcast) — Send announcement to all users"
     )
     await message.reply(help_text, parse_mode="HTML")
+
+
+@dp.message(Command("about"), F.chat.type == ChatType.PRIVATE)
+async def handle_about(message: Message) -> None:
+    """Handle /about command."""
+    about_text = (
+        f"ℹ️ <b>About {config.BOT_NAME}</b> 🎬⚡\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"• <b>Bot Name:</b> {config.BOT_NAME}\n"
+        "• <b>Version:</b> 2.0.0 (Production)\n"
+        "• <b>Architecture:</b> Zero-Download Server-Side Pointer Swap\n"
+        "• <b>Max File Size:</b> Up to 4GB\n"
+        "• <b>Processing Speed:</b> ⚡ 1–2 Seconds\n"
+        "• <b>Developer:</b> @achalkumardev\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "💡 <i>Designed for ultra-fast, zero-download, and 100% video quality retention.</i>"
+    )
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="📢 Updates", callback_data="cmd_updates"),
+                InlineKeyboardButton(text="⚙️ Settings", callback_data="cmd_setting"),
+            ],
+            [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+        ]
+    )
+    await message.reply(about_text, parse_mode="HTML", reply_markup=keyboard)
+
+
+@dp.message(Command("updates"), F.chat.type == ChatType.PRIVATE)
+async def handle_updates(message: Message) -> None:
+    """Handle /updates command."""
+    updates_text = (
+        f"📢 <b>{config.BOT_NAME} — Updates & Changelog</b>\n\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━\n"
+        "🎉 <b>What's New in v2.0:</b>\n"
+        "• ⚡ <b>Blazing 1–2s Swap:</b> Ultra-fast pointer swap on Telegram DCs\n"
+        "• 📦 <b>4GB File Support:</b> Handles full movies, anime & shows\n"
+        "• 🌐 <b>24/7 Serverless Edge:</b> Zero server downtime or crashes\n"
+        "• 🔘 <b>Interactive Inline UI:</b> Full touch button navigation\n"
+        "• 💾 <b>Persistent KV Database:</b> Thumbnails saved permanently\n"
+        "━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        "🔔 <i>Stay tuned for more upcoming updates & features!</i>"
+    )
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="ℹ️ About Bot", callback_data="cmd_about"),
+                InlineKeyboardButton(text="📖 Help", callback_data="cmd_help"),
+            ],
+            [InlineKeyboardButton(text="⬅️ Back to Menu", callback_data="cmd_start")],
+        ]
+    )
+    await message.reply(updates_text, parse_mode="HTML", reply_markup=keyboard)
 
 
 @dp.message(Command("restart"), F.chat.type == ChatType.PRIVATE)
@@ -510,6 +570,10 @@ async def handle_callback_query(query: CallbackQuery, bot: Bot) -> None:
         await handle_status(msg)
     elif data == "cmd_help":
         await handle_help(msg)
+    elif data == "cmd_about":
+        await handle_about(msg)
+    elif data == "cmd_updates":
+        await handle_updates(msg)
     elif data == "cmd_delthumb":
         await handle_delthumb(msg)
 
